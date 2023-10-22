@@ -26,17 +26,17 @@ jobs:
       #    sed -i "/MINIMUM_HA_VERSION = /c\MINIMUM_HA_VERSION = \"$(jq .homeassistant -r ${{ github.workspace }}/hacs.json)\"" ${{ github.workspace }}/custom_components/hacs/const.py
       #    python3 ${{ github.workspace }}/manage/update_manifest.py --version ${{ steps.version.outputs.version }}
 
-      # Pack the hass_template dir as a zip and upload to the release
-      - name: ZIP hass_template Dir
+      # Pack the metservice-weather dir as a zip and upload to the release
+      - name: ZIP metservice-weather Dir
         run: |
-          cd ${{ github.workspace }}/custom_components/hass_template
-          zip hass_template.zip -r ./
+          cd ${{ github.workspace }}/custom_components/metservice-weather
+          zip metservice-weather.zip -r ./
       - name: Upload zip to release
         uses: svenstaro/upload-release-action@v1-release
 
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/custom_components/hass_template/hass_template.zip
-          asset_name: hass_template.zip
+          file: ${{ github.workspace }}/custom_components/metservice-weather/metservice-weather.zip
+          asset_name: metservice-weather.zip
           tag: ${{ github.ref }}
           overwrite: true

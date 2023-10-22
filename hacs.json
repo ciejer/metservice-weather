@@ -1,15 +1,7 @@
 {
-  "name": "hass_template",
-  "domains": [
-    "climate",
-    "sensor",
-    "binary_sensor"
-  ],
-  "homeassistant": "2021.12.0",
-  "iot_class": [
-    "Cloud Poll"
-  ],
+  "name": "MetService New Zealand Weather",
+  "homeassistant": "2023.10.0",
   "zip_release": true,
-  "filename": "hass_template.zip",
+  "filename": "metservice-weather.zip",
   "render_readme": true
 }
