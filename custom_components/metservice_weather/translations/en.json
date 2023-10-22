@@ -1,0 +1,18 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "description": "If you need help with the configuration have a look here: https://github.com/ciejer/metservice_weather",
+                "data": {
+                    "region": "Region",
+                    "district": "District"
+                }
+            }
+        },
+        "error": {
+            "auth": "Region Does Not Exist",
+            "connection": "Unable to connect to the server.",
+            "unknown": "Unknown error occurred."
+        }
+    }
+}

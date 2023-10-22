@@ -1,42 +1,35 @@
-name: Release
+name: "Release"
 
 on:
   release:
-    types: [published]
+    types:
+      - "published"
+
+permissions: {}
 
 jobs:
-  release_zip_file:
-    name: Prepare release asset
-    runs-on: ubuntu-latest
+  release:
+    name: "Release"
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: write
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
+      - name: "Checkout the repository"
+        uses: "actions/checkout@v4.1.0"
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.x"
-
-      #- name: Get version
-      #  id: version
-      #  uses: home-assistant/actions/helpers/version@master
-
-      #- name: "Set version number"
-      #  run: |
-      #    sed -i "/MINIMUM_HA_VERSION = /c\MINIMUM_HA_VERSION = \"$(jq .homeassistant -r ${{ github.workspace }}/hacs.json)\"" ${{ github.workspace }}/custom_components/hacs/const.py
-      #    python3 ${{ github.workspace }}/manage/update_manifest.py --version ${{ steps.version.outputs.version }}
-
-      # Pack the metservice-weather dir as a zip and upload to the release
-      - name: ZIP metservice-weather Dir
+      - name: "Adjust version number"
+        shell: "bash"
         run: |
-          cd ${{ github.workspace }}/custom_components/metservice-weather
-          zip metservice-weather.zip -r ./
-      - name: Upload zip to release
-        uses: svenstaro/upload-release-action@v1-release
+          yq -i -o json '.version="${{ github.event.release.tag_name }}"' \
+            "${{ github.workspace }}/custom_components/metservice_weather/manifest.json"
 
+      - name: "ZIP the integration directory"
+        shell: "bash"
+        run: |
+          cd "${{ github.workspace }}/custom_components/metservice_weather"
+          zip metservice_weather.zip -r ./
+
+      - name: "Upload the ZIP file to the release"
+        uses: softprops/action-gh-release@v0.1.15
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/custom_components/metservice-weather/metservice-weather.zip
-          asset_name: metservice-weather.zip
-          tag: ${{ github.ref }}
-          overwrite: true
+          files: ${{ github.workspace }}/custom_components/metservice_weather/metservice_weather.zip

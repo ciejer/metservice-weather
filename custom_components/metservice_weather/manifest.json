@@ -1,0 +1,12 @@
+{
+  "domain": "metservice_weather",
+  "name": "MetService New Zealand Weather",
+  "codeowners": [
+    "@ciejer"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/ciejer/metservice_weather",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/ciejer/metservice_weather/issues",
+  "version": "0.0.1"
+}

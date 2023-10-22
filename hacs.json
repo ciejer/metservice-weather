@@ -1,7 +1,8 @@
 {
-  "name": "MetService New Zealand Weather",
-  "homeassistant": "2023.10.0",
-  "zip_release": true,
-  "filename": "metservice-weather.zip",
-  "render_readme": true
+    "name": "MetService New Zealand Weather",
+    "filename": "metservice_weather.zip",
+    "hide_default_branch": true,
+    "homeassistant": "2023.8.0",
+    "render_readme": true,
+    "zip_release": true
 }
