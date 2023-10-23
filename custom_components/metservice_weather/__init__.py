@@ -1,56 +1,56 @@
-"""Custom integration to integrate metservice_weather with Home Assistant.
-
-For more details about this integration, please refer to
-https://github.com/ciejer/metservice_weather
-"""
-from __future__ import annotations
-
+"""The MetService Weather component."""
+import logging
+from typing import Final
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
+from homeassistant.const import (
+    CONF_NAME,
+    CONF_LOCATION,
+    Platform,
+)
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.util.unit_system import METRIC_SYSTEM
+from .coordinator import WeatherUpdateCoordinator, WeatherUpdateCoordinatorConfig
+from .const import DOMAIN, API_URL, API_METRIC, API_URL_METRIC
 
-from .api import IntegrationBlueprintApiClient
-from .const import DOMAIN, CONF_DISTRICT
-from .coordinator import BlueprintDataUpdateCoordinator
+PLATFORMS: Final = [Platform.WEATHER, Platform.SENSOR]
 
-PLATFORMS: list[Platform] = [
-    Platform.SENSOR,
-    Platform.BINARY_SENSOR,
-    Platform.SWITCH,
-]
+_LOGGER = logging.getLogger(__name__)
 
 
-# https://developers.home-assistant.io/docs/config_entries_index/#setting-up-an-entry
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up this integration using UI."""
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Set up the MetService Weather component."""
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = coordinator = BlueprintDataUpdateCoordinator(
-        hass=hass,
-        client=IntegrationBlueprintApiClient(
-            username=entry.data[CONF_USERNAME],
-            password=entry.data[CONF_PASSWORD],
-            session=async_get_clientsession(hass),
-        ),
+
+    unit_system_api = API_URL_METRIC
+    unit_system = API_METRIC
+    config = WeatherUpdateCoordinatorConfig(
+        location=entry.data[CONF_LOCATION],
+        location_name=entry.data[CONF_NAME],
+        unit_system_api=unit_system_api,
+        unit_system=unit_system,
+        api_url=API_URL,
     )
-    # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
-    await coordinator.async_config_entry_first_refresh()
+
+    weathercoordinator = WeatherUpdateCoordinator(hass, config)
+    await weathercoordinator.async_config_entry_first_refresh()
+
+    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
+    hass.data[DOMAIN][entry.entry_id] = weathercoordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Handle removal of an entry."""
-    if unloaded := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
+    """Unload a config entry."""
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
-    return unloaded
+
+    return unload_ok
 
 
-async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Reload config entry."""
-    await async_unload_entry(hass, entry)
-    await async_setup_entry(hass, entry)
+async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Update listener."""
+    await hass.config_entries.async_reload(entry.entry_id)
