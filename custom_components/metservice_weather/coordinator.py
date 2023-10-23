@@ -10,15 +10,12 @@ from typing import Any
 
 import aiohttp
 import async_timeout
-import json
 import pytz
 
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.util import json
-from homeassistant.util.unit_system import METRIC_SYSTEM
 from homeassistant.const import (
     PERCENTAGE,
     UnitOfPressure,
@@ -29,18 +26,9 @@ from homeassistant.const import (
 )
 from .const import (
     ICON_CONDITION_MAP,
-    FIELD_DAYPART,
-    FIELD_HUMIDITY,
-    FIELD_TEMPERATUREMAX,
-    FIELD_TEMPERATUREMIN,
-    FIELD_VALIDTIMEUTC,
-    FIELD_WINDDIR,
-    FIELD_WINDGUST,
-    FIELD_WINDSPEED,
-    DOMAIN,
-    RESULTS_CURRENT,
     SENSOR_MAP,
 )
+import contextlib
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -143,15 +131,15 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             )
 
     def get_current(self, field):
+        """Get a specific key from the MetService returned data."""
+
         def get_from_dict(data_dict, map_list):
             for key in map_list:
-                try:
+                with contextlib.suppress(ValueError):
                     key = int(key)
-                except ValueError:
-                    pass
                 try:
                     data_dict = data_dict[key]
-                except:
+                except Exception:
                     data_dict = None
             return data_dict
 

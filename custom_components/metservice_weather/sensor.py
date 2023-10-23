@@ -1,7 +1,7 @@
-"""
-Sensor Support for MetService weather service.
+"""Sensor Support for MetService weather service.
+
 For more details about this platform, please refer to the documentation at
-https://github.com/ciejer/metservice-weather
+https://github.com/ciejer/metservice-weather.
 """
 from __future__ import annotations
 
@@ -14,19 +14,22 @@ from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util.unit_system import METRIC_SYSTEM
+from homeassistant.helpers.typing import StateType
+
+from typing import Any
 
 from .coordinator import WeatherUpdateCoordinator
 
 from .const import (
     CONF_ATTRIBUTION,
     DOMAIN,
-    FIELD_DAYPART,
-    FIELD_WINDGUST,
-    FIELD_WINDSPEED,
-    RESULTS_CURRENT,
     SENSOR_MAP,
 )
-from .weather_current_conditions_sensors import *
+from .weather_current_conditions_sensors import (
+    current_condition_sensor_descriptions,
+    WeatherSensorEntityDescription,
+)
+import contextlib
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -60,6 +63,7 @@ class WeatherSensor(CoordinatorEntity, SensorEntity):
         coordinator: WeatherUpdateCoordinator,
         description: WeatherSensorEntityDescription,
     ):
+        """Initialize MetService sensors."""
         super().__init__(coordinator)
         self.entity_description = description
 
@@ -119,13 +123,11 @@ def _get_sensor_data(sensors: dict[str, Any], kind: str, unit_system: str) -> An
 
     def get_from_dict(data_dict, map_list):
         for key in map_list:
-            try:
+            with contextlib.suppress(ValueError):
                 key = int(key)
-            except ValueError:
-                pass
             try:
                 data_dict = data_dict[key]
-            except:
+            except Exception:
                 data_dict = None
         return data_dict
 

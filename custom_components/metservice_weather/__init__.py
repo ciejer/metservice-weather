@@ -8,7 +8,6 @@ from homeassistant.const import (
     Platform,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.util.unit_system import METRIC_SYSTEM
 from .coordinator import WeatherUpdateCoordinator, WeatherUpdateCoordinatorConfig
 from .const import DOMAIN, API_URL, API_METRIC, API_URL_METRIC
 

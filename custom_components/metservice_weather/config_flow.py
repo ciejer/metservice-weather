@@ -5,9 +5,7 @@ from http import HTTPStatus
 import async_timeout
 import voluptuous as vol
 from homeassistant import config_entries
-import homeassistant.helpers.config_validation as cv
 from homeassistant.const import CONF_LOCATION, CONF_NAME
-from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.helpers.selector import (
     SelectSelector,
@@ -77,7 +75,7 @@ class WeatherFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             return await self._show_setup_form(errors=errors)
 
         if not errors:
-            result_current = await response.json(content_type=None)
+            await response.json(content_type=None)
 
             unique_id = str(f"{DOMAIN}-{location}")
             await self.async_set_unique_id(unique_id)

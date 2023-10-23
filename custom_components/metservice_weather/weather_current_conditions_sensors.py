@@ -1,7 +1,10 @@
+"""Sensor platform for MetService weather."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Any, cast
+from typing import Any, cast
+from collections.abc import Callable
 import datetime
 import pytz
 
@@ -13,9 +16,7 @@ from .const import (
     FIELD_WINDDIR,
     FIELD_WINDGUST,
     FIELD_WINDSPEED,
-    FIELD_CONDITIONS,
     ICON_THERMOMETER,
-    ICON_UMBRELLA,
     ICON_WIND,
 )
 from homeassistant.components.sensor import (
@@ -25,11 +26,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import (
     PERCENTAGE,
-    UV_INDEX,
-    DEGREE,
-    UnitOfLength,
     UnitOfTemperature,
-    UnitOfVolumetricFlux,
     UnitOfPressure,
     UnitOfSpeed,
 )
@@ -45,9 +42,10 @@ class WeatherRequiredKeysMixin:
 
 @dataclass
 class WeatherSensorEntityDescription(SensorEntityDescription, WeatherRequiredKeysMixin):
+    """Describes MetService Sensor entity."""
+
     attr_fn: Callable[[dict[str, Any]], dict[str, StateType]] = lambda _: {}
     unit_fn: Callable[[bool], str | None] = lambda _: None
-    """Describes MetService Sensor entity."""
 
 
 current_condition_sensor_descriptions = [

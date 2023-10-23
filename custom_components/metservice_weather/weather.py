@@ -1,7 +1,7 @@
-"""
-Support for MetService weather service.
+"""Support for MetService weather service.
+
 For more details about this platform, please refer to the documentation at
-https://github.com/ciejer/metservice-weather
+https://github.com/ciejer/metservice-weather.
 """
 
 from . import WeatherUpdateCoordinator
@@ -12,16 +12,10 @@ from .const import (
     LENGTHUNIT,
     SPEEDUNIT,
     PRESSUREUNIT,
-    FIELD_CLOUD_COVER,
     FIELD_CONDITIONS,
     FIELD_HUMIDITY,
-    FIELD_PRECIPCHANCE,
     FIELD_PRESSURE,
-    FIELD_QPF,
     FIELD_TEMP,
-    FIELD_TEMPERATUREMAX,
-    FIELD_TEMPERATUREMIN,
-    FIELD_VALIDTIMEUTC,
     FIELD_WINDDIR,
     FIELD_WINDSPEED,
     CONDITION_MAP,
@@ -30,14 +24,9 @@ from .const import (
 import logging
 
 from homeassistant.components.weather import (
-    ATTR_FORECAST_CLOUD_COVERAGE,
-    ATTR_FORECAST_CONDITION,
     ATTR_FORECAST_PRECIPITATION,
-    ATTR_FORECAST_PRECIPITATION_PROBABILITY,
     ATTR_FORECAST_TEMP,
-    ATTR_FORECAST_TEMP_LOW,
     ATTR_FORECAST_TIME,
-    ATTR_FORECAST_WIND_BEARING,
     ATTR_FORECAST_WIND_SPEED,
     SingleCoordinatorWeatherEntity,
     WeatherEntityFeature,
@@ -67,12 +56,11 @@ async def async_setup_entry(
 
 
 class MetService(SingleCoordinatorWeatherEntity):
+    """Implementation of a MetService weather service."""
+
     @property
     def native_temperature(self) -> float:
-        """
-        Return the platform temperature in native units
-        (i.e. not converted).
-        """
+        """Return the platform temperature in native units (i.e. not converted)."""
         return self.coordinator.get_current(FIELD_TEMP)
 
     @property
@@ -112,9 +100,7 @@ class MetService(SingleCoordinatorWeatherEntity):
 
     @property
     def native_precipitation_unit(self) -> str:
-        """
-        Return the native unit of measurement for accumulated precipitation.
-        """
+        """Return the native unit of measurement for accumulated precipitation."""
         return self.coordinator.units_of_measurement[LENGTHUNIT]
 
     @property
@@ -126,9 +112,11 @@ class MetService(SingleCoordinatorWeatherEntity):
 
 
 class MetServiceForecast(MetService):
+    """Implementation of a MetService weather forecast."""
+
     def __init__(self, coordinator: WeatherUpdateCoordinator):
-        super().__init__(coordinator)
         """Initialize the sensor."""
+        super().__init__(coordinator)
         self.entity_id = generate_entity_id(
             ENTITY_ID_FORMAT, f"{coordinator.location}", hass=coordinator.hass
         )
@@ -136,9 +124,11 @@ class MetServiceForecast(MetService):
 
     @property
     def supported_features(self) -> WeatherEntityFeature:
+        """Return the forecast supported features."""
         return WeatherEntityFeature.FORECAST_HOURLY
 
     async def async_forecast_hourly(self) -> list[Forecast] | None:
+        """Return hourly forecast."""
         return self.forecast_hourly
 
     @property
