@@ -184,15 +184,6 @@ class MetServiceForecast(MetService):
             forecast.append(
                 Forecast(
                     {
-                        # ATTR_FORECAST_CLOUD_COVERAGE: self.coordinator.get_forecast_daily(
-                        #     FIELD_CLOUD_COVER, hour
-                        # ),
-                        # ATTR_FORECAST_PRECIPITATION: self.coordinator.get_forecast_hourly(
-                        #     FIELD_QPF, hour
-                        # ),
-                        # ATTR_FORECAST_PRECIPITATION_PROBABILITY: self.coordinator.get_forecast_hourly(
-                        #     FIELD_PRECIPCHANCE, hour
-                        # ),
                         ATTR_FORECAST_TEMP: this_hour["temperature"],
                         ATTR_FORECAST_TIME: self.coordinator._format_timestamp(
                             this_hour["date"]
@@ -200,17 +191,6 @@ class MetServiceForecast(MetService):
                         ATTR_FORECAST_PRECIPITATION: this_hour["rainfall"],
                         ATTR_FORECAST_WIND_SPEED: this_hour["wind"]["speed"],
                         ATTR_FORECAST_CONDITION: icon,
-                        # ATTR_FORECAST_TEMP: self.coordinator.get_forecast_hourly(
-                        #     FIELD_TEMP, hour
-                        # ),
-                        # ATTR_FORECAST_TIME: self.coordinator._format_timestamp(
-                        #     self.coordinator.get_forecast_hourly(
-                        #         FIELD_VALIDTIMEUTC, hour
-                        #     )
-                        # ),
-                        # ATTR_FORECAST_WIND_SPEED: self.coordinator.get_forecast_hourly(
-                        #     FIELD_WINDSPEED, hour
-                        # ),
                     }
                 )
             )

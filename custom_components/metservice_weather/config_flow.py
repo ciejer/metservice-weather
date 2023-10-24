@@ -12,7 +12,6 @@ from homeassistant.helpers.selector import (
     SelectSelectorConfig,
 )
 
-from .coordinator import InvalidApiKey
 
 from .const import (
     DOMAIN,
@@ -51,24 +50,13 @@ class WeatherFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             # _LOGGER.debug(response.status)
             if response.status != HTTPStatus.OK:
                 # 401 status is most likely bad api_key or api usage limit exceeded
-                if response.status == HTTPStatus.UNAUTHORIZED:
-                    _LOGGER.error(
-                        "MetService config responded with HTTP error %s: %s",
-                        response.status,
-                        response.reason,
-                    )
-                    raise InvalidApiKey
-                else:
-                    _LOGGER.error(
-                        "MetService config responded with HTTP error %s: %s",
-                        response.status,
-                        response.reason,
-                    )
-                    raise Exception
 
-        except InvalidApiKey:
-            errors["base"] = "invalid_api_key"
-            return await self._show_setup_form(errors=errors)
+                _LOGGER.error(
+                    "MetService config responded with HTTP error %s: %s",
+                    response.status,
+                    response.reason,
+                )
+                raise Exception
         except Exception:  # pylint: disable=broad-except
             _LOGGER.exception("Unexpected exception")
             errors["base"] = "unknown_error"

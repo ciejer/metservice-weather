@@ -8,12 +8,12 @@ from datetime import datetime, timedelta
 import logging
 from typing import Any
 
+import contextlib
 import aiohttp
 import async_timeout
 import pytz
 
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.const import (
@@ -25,12 +25,10 @@ from homeassistant.const import (
     UnitOfVolumetricFlux,
 )
 from .const import (
-    ICON_CONDITION_MAP,
     SENSOR_MAP,
     RESULTS_CURRENT,
     RESULTS_FORECAST_DAILY,
 )
-import contextlib
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -53,8 +51,6 @@ class WeatherUpdateCoordinatorConfig:
 
 class WeatherUpdateCoordinator(DataUpdateCoordinator):
     """The MetService update coordinator."""
-
-    icon_condition_map = ICON_CONDITION_MAP
 
     def __init__(
         self, hass: HomeAssistant, config: WeatherUpdateCoordinatorConfig
@@ -178,20 +174,6 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         return result
 
     @classmethod
-    def _iconcode_to_condition(cls, icon_code):
-        for condition, iconcodes in cls.icon_condition_map.items():
-            if icon_code in iconcodes:
-                return condition
-        _LOGGER.warning(
-            f'Unmapped iconCode from TWC Api. (44 is Not Available (N/A)) "{icon_code}". '
-        )
-        return None
-
-    @classmethod
     def _format_timestamp(cls, timestamp_val):
         return datetime.fromisoformat(timestamp_val).astimezone(pytz.utc)
         # return datetime.utcfromtimestamp(timestamp_secs).isoformat("T") + "Z"
-
-
-class InvalidApiKey(HomeAssistantError):
-    """Error to indicate there is an invalid api key."""
