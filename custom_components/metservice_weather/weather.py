@@ -22,12 +22,14 @@ from .const import (
 )
 
 import logging
+from datetime import datetime
 
 from homeassistant.components.weather import (
     ATTR_FORECAST_PRECIPITATION,
     ATTR_FORECAST_TEMP,
     ATTR_FORECAST_TIME,
     ATTR_FORECAST_WIND_SPEED,
+    ATTR_FORECAST_CONDITION,
     SingleCoordinatorWeatherEntity,
     WeatherEntityFeature,
     Forecast,
@@ -151,6 +153,43 @@ class MetServiceForecast(MetService):
             1,
         ):
             this_hour = hourly_readings[hour]
+
+            # "clear-night": "clear-night",
+            # "cloudy": "cloudy",
+            # "exceptional": "exceptional",
+            # "fog": "fog",
+            # "hail": "hail",
+            # "lightning": "lightning",
+            # "partlycloudy": "partlycloudy",
+            # "sunny": "sunny",
+            # "windy": "windy",
+            # "windy-variant": "windy-variant",
+            # "lightning-rainy": "lightning-rainy",
+
+            # "snowy-rainy": "snowy-rainy",
+            # "pouring": "pouring",
+            # "rainy": "rainy",
+            # "snowy": "snowy",
+            icon = "sunny"
+            if float(this_hour["rainfall"]) > 0:
+                # rainy
+                if float(this_hour["rainfall"]) > 6:
+                    # pouring
+                    icon = "pouring"
+                else:
+                    icon = "rainy"
+            else:
+                # clear
+                if float(this_hour["wind"]["speed"]) > 40:
+                    # windy
+                    icon = "windy"
+                if 7 < datetime.fromisoformat(this_hour["date"]).hour < 19:
+                    # daytime
+                    icon = "partlycloudy"
+                else:
+                    # nighttime
+                    icon = "clear-night"
+
             forecast.append(
                 Forecast(
                     {
@@ -169,6 +208,7 @@ class MetServiceForecast(MetService):
                         ),
                         ATTR_FORECAST_PRECIPITATION: this_hour["rainfall"],
                         ATTR_FORECAST_WIND_SPEED: this_hour["wind"]["speed"],
+                        ATTR_FORECAST_CONDITION: icon,
                         # ATTR_FORECAST_TEMP: self.coordinator.get_forecast_hourly(
                         #     FIELD_TEMP, hour
                         # ),
