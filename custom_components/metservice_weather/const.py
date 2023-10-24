@@ -185,6 +185,11 @@ SENSOR_MAP: Final[dict[str, str]] = {
     "hourly_obs": "layout.primary.slots.main.modules.2.graph.series.1.count",
     "tides_high": "layout.secondary.slots.major.modules.1.tideData",
     "tides_low": "layout.secondary.slots.major.modules.1.tideData",
+    "daily_base": "layout.primary.slots.main.modules.0.days",
+    "daily_temp_high": "forecasts.0.highTemp",
+    "daily_temp_low": "forecasts.0.lowTemp",
+    "daily_condition": "condition",
+    "daily_datetime": "date",
 }
 
 CONDITION_MAP: Final[dict[str, str]] = {

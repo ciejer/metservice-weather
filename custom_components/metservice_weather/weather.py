@@ -27,6 +27,7 @@ from datetime import datetime
 from homeassistant.components.weather import (
     ATTR_FORECAST_PRECIPITATION,
     ATTR_FORECAST_TEMP,
+    ATTR_FORECAST_TEMP_LOW,
     ATTR_FORECAST_TIME,
     ATTR_FORECAST_WIND_SPEED,
     ATTR_FORECAST_CONDITION,
@@ -129,7 +130,9 @@ class MetServiceForecast(MetService):
     @property
     def supported_features(self) -> WeatherEntityFeature:
         """Return the forecast supported features."""
-        return WeatherEntityFeature.FORECAST_HOURLY
+        return (
+            WeatherEntityFeature.FORECAST_HOURLY | WeatherEntityFeature.FORECAST_DAILY
+        )
 
     @property
     def name(self):
@@ -139,6 +142,10 @@ class MetServiceForecast(MetService):
     async def async_forecast_hourly(self) -> list[Forecast] | None:
         """Return hourly forecast."""
         return self.forecast_hourly
+
+    async def async_forecast_daily(self) -> list[Forecast] | None:
+        """Return hourly forecast."""
+        return self.forecast_daily
 
     @property
     def forecast_hourly(self) -> list[Forecast]:
@@ -204,6 +211,35 @@ class MetServiceForecast(MetService):
                         # ATTR_FORECAST_WIND_SPEED: self.coordinator.get_forecast_hourly(
                         #     FIELD_WINDSPEED, hour
                         # ),
+                    }
+                )
+            )
+        return forecast
+
+    @property
+    def forecast_daily(self) -> list[Forecast]:
+        """Return the daily forecast in native units."""
+
+        forecast = []
+        num_days = self.coordinator.get_forecast_daily("", 0)
+
+        for day in range(0, num_days):
+            day_condition = self.coordinator.get_forecast_daily("daily_condition", day)
+            if day_condition in CONDITION_MAP:
+                day_condition = CONDITION_MAP[day_condition]
+            forecast.append(
+                Forecast(
+                    {
+                        ATTR_FORECAST_TEMP: self.coordinator.get_forecast_daily(
+                            "daily_temp_high", day
+                        ),
+                        ATTR_FORECAST_TEMP_LOW: self.coordinator.get_forecast_daily(
+                            "daily_temp_low", day
+                        ),
+                        ATTR_FORECAST_CONDITION: day_condition,
+                        ATTR_FORECAST_TIME: datetime.fromisoformat(
+                            self.coordinator.get_forecast_daily("daily_datetime", day)
+                        ),
                     }
                 )
             )

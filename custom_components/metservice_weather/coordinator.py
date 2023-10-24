@@ -112,7 +112,17 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 if result_current is None:
                     raise ValueError("NO CURRENT RESULT")
                 self._check_errors(url, result_current)
-            result = {RESULTS_CURRENT: result_current}
+            with async_timeout.timeout(10):
+                url = f"{self._api_url}/locations/{self.location}/7-days"
+                response = await self._session.get(url, headers=headers)
+                result_daily = await response.json(content_type=None)
+                if result_daily is None:
+                    raise ValueError("NO CURRENT RESULT")
+                self._check_errors(url, result_daily)
+            result = {
+                RESULTS_CURRENT: result_current,
+                RESULTS_FORECAST_DAILY: result_daily,
+            }
             self.data = result
 
             return result
@@ -132,21 +142,39 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 f"Error from {url}: " "; ".join([e["message"] for e in errors])
             )
 
+    def get_from_dict(self, data_dict, map_list):
+        """Get a value from a dictionary using a list of keys."""
+        for key in map_list:
+            with contextlib.suppress(ValueError):
+                key = int(key)
+            try:
+                data_dict = data_dict[key]
+            except Exception:
+                data_dict = None
+        return data_dict
+
     def get_current(self, field):
         """Get a specific key from the MetService returned data."""
 
-        def get_from_dict(data_dict, map_list):
-            for key in map_list:
-                with contextlib.suppress(ValueError):
-                    key = int(key)
-                try:
-                    data_dict = data_dict[key]
-                except Exception:
-                    data_dict = None
-            return data_dict
-
         keys = SENSOR_MAP[field].split(".")
-        result = get_from_dict(self.data[RESULTS_CURRENT], keys)
+        result = self.get_from_dict(self.data[RESULTS_CURRENT], keys)
+        return result
+
+    def get_forecast_daily(self, field, day):
+        """Get a specific key from the MetService returned data."""
+        all_days = self.data[RESULTS_FORECAST_DAILY]["layout"]["primary"]["slots"][
+            "main"
+        ]["modules"][0]["days"]
+        if field == "":  # send a blank to get the number of days
+            return len(all_days)
+        this_day = all_days[day]
+        keys = [SENSOR_MAP[field]]
+        if "." in SENSOR_MAP[field]:
+            keys = SENSOR_MAP[field].split(".")
+        result = self.get_from_dict(
+            this_day,
+            keys,
+        )
         return result
 
     @classmethod
