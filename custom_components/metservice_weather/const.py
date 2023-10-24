@@ -174,7 +174,7 @@ SENSOR_MAP: Final[dict[str, str]] = {
     FIELD_WINDGUST: "layout.primary.slots.left-major.modules.0.observations.wind.0.gustSpeed",
     FIELD_CONDITIONS: "layout.primary.slots.main.modules.0.days.0.condition",
     FIELD_DESCRIPTION: "layout.primary.slots.main.modules.0.days.0.forecasts.0.statement",
-    "validTimeLocal": "layout.primary.slots.left-major.modules.0.asAt",
+    "validTimeLocal": "layout.primary.slots.main.modules.0.days.0.issuedAt",
     "uvIndex": "layout.primary.slots.left-minor.modules.4.uv.sunProtection.uvAlertLevel",
     "temperatureFeelsLike": "layout.primary.slots.left-major.modules.0.observations.temperature.0.feelsLike",
     "pressureTendencyTrend": "layout.primary.slots.left-major.modules.0.observations.pressure.0.trend",

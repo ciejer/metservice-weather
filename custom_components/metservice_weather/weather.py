@@ -118,9 +118,9 @@ class MetServiceForecast(MetService):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self.entity_id = generate_entity_id(
-            ENTITY_ID_FORMAT, f"{coordinator.location}", hass=coordinator.hass
+            ENTITY_ID_FORMAT, f"{coordinator.location_name}", hass=coordinator.hass
         )
-        self._attr_unique_id = f"{coordinator.location},{WEATHER_DOMAIN}".lower()
+        self._attr_unique_id = f"{coordinator.location_name},{WEATHER_DOMAIN}".lower()
 
     @property
     def supported_features(self) -> WeatherEntityFeature:

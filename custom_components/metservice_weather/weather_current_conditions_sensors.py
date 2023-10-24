@@ -51,12 +51,10 @@ class WeatherSensorEntityDescription(SensorEntityDescription, WeatherRequiredKey
 current_condition_sensor_descriptions = [
     WeatherSensorEntityDescription(
         key="validTimeLocal",
-        name="Local Observation Time",
+        name="Forecast Description Updated Time",
         device_class=SensorDeviceClass.TIMESTAMP,
         icon="mdi:clock",
-        value_fn=lambda data, _: datetime.datetime.fromisoformat(data).replace(
-            tzinfo=pytz.utc
-        )
+        value_fn=lambda data, _: datetime.datetime.fromisoformat(data)
         if isinstance(data, str)
         else None,
     ),
@@ -186,11 +184,9 @@ current_condition_sensor_descriptions = [
                 for a in data
                 if a["type"] == "HIGH"
                 and datetime.datetime.fromisoformat(a["time"])
-                .replace(tzinfo=pytz.utc)
-                .astimezone(pytz.timezone("Pacific/Auckland"))
                 > datetime.datetime.now(pytz.timezone("Pacific/Auckland"))
             ][0]["time"]
-        ).replace(tzinfo=pytz.utc)
+        )
         if isinstance(data, list)
         else None,
     ),
@@ -205,11 +201,9 @@ current_condition_sensor_descriptions = [
                 for a in data
                 if a["type"] == "LOW"
                 and datetime.datetime.fromisoformat(a["time"])
-                .replace(tzinfo=pytz.utc)
-                .astimezone(pytz.timezone("Pacific/Auckland"))
                 > datetime.datetime.now(pytz.timezone("Pacific/Auckland"))
             ][0]["time"]
-        ).replace(tzinfo=pytz.utc)
+        )
         if isinstance(data, list)
         else None,
     ),
