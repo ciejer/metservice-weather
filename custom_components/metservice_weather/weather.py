@@ -154,22 +154,6 @@ class MetServiceForecast(MetService):
         ):
             this_hour = hourly_readings[hour]
 
-            # "clear-night": "clear-night",
-            # "cloudy": "cloudy",
-            # "exceptional": "exceptional",
-            # "fog": "fog",
-            # "hail": "hail",
-            # "lightning": "lightning",
-            # "partlycloudy": "partlycloudy",
-            # "sunny": "sunny",
-            # "windy": "windy",
-            # "windy-variant": "windy-variant",
-            # "lightning-rainy": "lightning-rainy",
-
-            # "snowy-rainy": "snowy-rainy",
-            # "pouring": "pouring",
-            # "rainy": "rainy",
-            # "snowy": "snowy",
             icon = "sunny"
             if float(this_hour["rainfall"]) > 0:
                 # rainy

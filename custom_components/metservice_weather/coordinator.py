@@ -27,6 +27,8 @@ from homeassistant.const import (
 from .const import (
     ICON_CONDITION_MAP,
     SENSOR_MAP,
+    RESULTS_CURRENT,
+    RESULTS_FORECAST_DAILY,
 )
 import contextlib
 
@@ -110,10 +112,10 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 if result_current is None:
                     raise ValueError("NO CURRENT RESULT")
                 self._check_errors(url, result_current)
+            result = {RESULTS_CURRENT: result_current}
+            self.data = result
 
-            self.data = result_current
-
-            return result_current
+            return result
 
         except ValueError as err:
             _LOGGER.error("Check MetService API %s", err.args)
@@ -144,7 +146,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             return data_dict
 
         keys = SENSOR_MAP[field].split(".")
-        result = get_from_dict(self.data, keys)
+        result = get_from_dict(self.data[RESULTS_CURRENT], keys)
         return result
 
     @classmethod

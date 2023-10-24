@@ -24,6 +24,7 @@ from .const import (
     CONF_ATTRIBUTION,
     DOMAIN,
     SENSOR_MAP,
+    RESULTS_CURRENT,
 )
 from .weather_current_conditions_sensors import (
     current_condition_sensor_descriptions,
@@ -132,7 +133,7 @@ def _get_sensor_data(sensors: dict[str, Any], kind: str, unit_system: str) -> An
         return data_dict
 
     keys = SENSOR_MAP[kind].split(".")
-    result = get_from_dict(sensors, keys)
+    result = get_from_dict(sensors[RESULTS_CURRENT], keys)
     return result
     # # windGust is often null. When it is, set it to windSpeed instead.
     # if kind == FIELD_WINDGUST and sensors[RESULTS_CURRENT][kind] == None:
