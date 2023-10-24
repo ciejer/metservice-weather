@@ -114,8 +114,10 @@ class MetService(SingleCoordinatorWeatherEntity):
 class MetServiceForecast(MetService):
     """Implementation of a MetService weather forecast."""
 
+    _attr_has_entity_name = True
+
     def __init__(self, coordinator: WeatherUpdateCoordinator):
-        """Initialize the sensor."""
+        """Initialize the forecast sensor."""
         super().__init__(coordinator)
         self.entity_id = generate_entity_id(
             ENTITY_ID_FORMAT, f"{coordinator.location_name}", hass=coordinator.hass
@@ -126,6 +128,11 @@ class MetServiceForecast(MetService):
     def supported_features(self) -> WeatherEntityFeature:
         """Return the forecast supported features."""
         return WeatherEntityFeature.FORECAST_HOURLY
+
+    @property
+    def name(self):
+        """Return the name of the forecast sensor."""
+        return f"{self.coordinator.location_name} Forecast"
 
     async def async_forecast_hourly(self) -> list[Forecast] | None:
         """Return hourly forecast."""
