@@ -1,33 +1,46 @@
-# MetService-Weather Custom Component for Home Assistant
+# MetService New Zealand Weather integration for Home Assistant
+View weather data from MetService (NZ), including daily & hourly forecasts, as well as:
 
-This Custom Component provides MetService NZ connectivity, including forecast, tides, UV, Laundry Drying Times (my reason for creating), and others.
-Please raise an issue or PR for anything you'd like added, or any bugs (there will be some! I tested about 5 locations and all working, but there's some weirdness around different areas)
+* Current condition
+* Temperature
+* Air pressure & trend
+* Humidity
+* Wind speed
+* Gusts & direction
+* UV index
+* Pollen levels & type
+* Clothes drying times (my reason for creating)
+* Tides
 
-## Installation:
-There are two main ways to install this custom component within your Home Assistant instance:
-1. Using HACS (see https://hacs.xyz/ for installation instructions if you do not already have it installed):
+## Installation
+There are two main ways to install this custom component within your Home Assistant instance.
 
-    1. From within Home Assistant, click on the link to HACS
-    2. Click on Integrations
-    3. Click on the vertical ellipsis in the top right and select Custom repositories
-    4. Enter the URL for this repository `ciejer/metservice-weather` in the section that says _Add custom repository URL_ and select Integration in the Category dropdown list
-    5. Click the ADD button
-    6. Close the Custom repositories window
-    7. You should now be able to see the **MetService New Zealand Weather** card on the HACS Integrations page. Click on INSTALL and proceed with the installation instructions.
-    8. Restart your Home Assistant instance and then proceed to the Configuration section below.
-2. Manual Installation:
-    1. Download or clone this repository.
-    2. Copy the contents of the folder `custom_components/metservice_weather` into the same file structure on your Home Assistant instance.
-    3. An easy way to do this is using the Samba add-on, but feel free to do so however you want.
-    4. Restart your Home Assistant instance and then proceed to the Configuration section below.
+### HACS (recommended)
+1. [Install HACS](https://hacs.xyz/docs/setup/download), if you did not already
+2. [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ciejer&repository=metservice-weather&category=integration)
+3. Install the MetService New Zealand Weather integration
+4. Restart Home Assistant
 
-## Configuration:
-There is a config flow for this MetService integration. After installing the custom component:
+### Manually
+Copy all files in the custom_components/metservice_weather folder to your Home Assistant folder *config/custom_components/metservice_weather*, then restart Home Assistant.
 
-1. Go to **Configuration**->**Devices & services**
-2. Click **+ ADD INTEGRATION** to setup a new integration
-3. Search for **MetService New Zealand Weather** and click on it
-4. You will be guided through the rest of the setup process via the config flow
+## Getting started
+Once installed:
 
+1. Browse to **Configuration**->**Devices & services**
+2. Click **+ ADD INTEGRATION**
+3. Search for **MetService New Zealand Weather**, then select it
+4. Select your location and any other settings (as required)
 
-Credit to [jaydeethree](https://github.com/jaydeethree/Home-Assistant-weatherdotcom) and [alexander0042](https://github.com/alexander0042/pirate-weather-ha/tree/master/custom_components/pirateweather) for their great example to follow for my first HA component - and [natekspencer](https://github.com/natekspencer/hacs-vivint) for the installation / config structure.
+## Known issues
+[See here](https://github.com/ciejer/metservice-weather/issues). I tested about 5 locations and all working, but there's some weirdness around different areas.
+
+## Future enhancements
+Please raise an [issue](https://github.com/ciejer/metservice-weather/issues) or [PR](https://github.com/ciejer/metservice-weather/pulls) for anything you'd like added, or any bugs (there will be some)!
+
+## Credits
+* [jaydeethree](https://github.com/jaydeethree/Home-Assistant-weatherdotcom) and [alexander0042](https://github.com/alexander0042/pirate-weather-ha/tree/master/custom_components/pirateweather) for their great example to follow for my first HA component
+* [natekspencer](https://github.com/natekspencer/hacs-vivint) for the installation / config structure
+
+## Disclaimer
+While data is updated every 20 minutes, you should always check the MetService website directly in case of emergency. This integration should never be relied upon for safety of life.
