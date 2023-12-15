@@ -20,7 +20,39 @@ FIELD_WINDSPEED = "windSpeed"
 FIELD_CONDITIONS = "condition"
 
 
-SENSOR_MAP: Final[dict[str, str]] = {
+SENSOR_MAP_MOBILE: Final[dict[str, str]] = {
+    "pollen_levels": "layout.primary.slots.left-minor.modules.4.pollen.pollenLevels.level",
+    "pollen_type": "layout.primary.slots.left-minor.modules.4.pollen.pollenLevels.type",
+    "drying_index_morning": "result.genericModules.0.sections.0.paragraphs.0.lines.0.markdown",
+    "drying_index_afternoon": "result.genericModules.0.sections.0.paragraphs.0.lines.1.markdown",
+    FIELD_TEMP: "result.observationData.temperature",
+    FIELD_HUMIDITY: "result.observationData.relativeHumidity",
+    FIELD_PRESSURE: "result.observationData.pressure",
+    FIELD_WINDDIR: "result.observationData.windDirection",
+    FIELD_WINDSPEED: "result.observationData.windSpeed",
+    FIELD_WINDGUST: "result.observationData.windGustSpeed",
+    FIELD_CONDITIONS: "result.forecastData.days.0.forecastWord",
+    FIELD_DESCRIPTION: "result.forecastData.days.0.forecast",
+    "validTimeLocal": "result.forecastData.days.0.issuedAtISO",
+    "uvAlert": "result.forecastData.days.0.uvHasAlert",
+    "temperatureFeelsLike": "layout.primary.slots.left-major.modules.0.observations.temperature.0.feelsLike",
+    "pressureTendencyTrend": "result.observationData.pressureTrend",
+    "location_name": "location.label",
+    "hourly_temp": "layout.primary.slots.main.modules.2.graph.columns",
+    "hourly_timestamp": "layout.primary.slots.main.modules.2.graph.columns",
+    "hourly_skip": "layout.primary.slots.main.modules.2.graph.series.0.count",
+    "hourly_obs": "layout.primary.slots.main.modules.2.graph.series.1.count",
+    "tides_high": "result.tides.0.days",
+    "tides_low": "result.tides.0.days",
+    "daily_base": "layout.primary.slots.main.modules.0.days",
+    "daily_temp_high": "forecasts.0.highTemp",
+    "daily_temp_low": "forecasts.0.lowTemp",
+    "daily_condition": "condition",
+    "daily_datetime": "date",
+}
+
+
+SENSOR_MAP_PUBLIC: Final[dict[str, str]] = {
     "pollen_levels": "layout.primary.slots.left-minor.modules.4.pollen.pollenLevels.level",
     "pollen_type": "layout.primary.slots.left-minor.modules.4.pollen.pollenLevels.type",
     "drying_index_morning": "layout.primary.slots.left-minor.modules.4.dryingIndex.dryingState.0.text",
@@ -189,7 +221,8 @@ LOCATIONS = [
 ]
 
 
-API_URL = "https://www.metservice.com/publicData/webdata/towns-cities"
+PUBLIC_URL = "https://www.metservice.com/publicData/webdata/towns-cities"
+MOBILE_URL = "https://api.metservice.com/mobile/nz/weatherData"
 API_METRIC: Final = "metric"
 API_URL_METRIC: Final = "m"
 DEFAULT_LOCATION = "tauranga"
