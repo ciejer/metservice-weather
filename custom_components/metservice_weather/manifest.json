@@ -5,8 +5,8 @@
     "@ciejer"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/ciejer/metservice_weather",
+  "documentation": "https://github.com/ciejer/metservice-weather",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/ciejer/metservice_weather/issues",
+  "issue_tracker": "https://github.com/ciejer/metservice-weather/issues",
   "version": "0.0.1"
 }
