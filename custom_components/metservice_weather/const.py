@@ -38,17 +38,17 @@ SENSOR_MAP_MOBILE: Final[dict[str, str]] = {
     "temperatureFeelsLike": "layout.primary.slots.left-major.modules.0.observations.temperature.0.feelsLike",
     "pressureTendencyTrend": "result.observationData.pressureTrend",
     "location_name": "location.label",
-    "hourly_temp": "layout.primary.slots.main.modules.2.graph.columns",
+    "hourly_base": "result.hourlyForecastData.data",
     "hourly_timestamp": "layout.primary.slots.main.modules.2.graph.columns",
     "hourly_skip": "layout.primary.slots.main.modules.2.graph.series.0.count",
     "hourly_obs": "layout.primary.slots.main.modules.2.graph.series.1.count",
     "tides_high": "result.tides.0.days",
     "tides_low": "result.tides.0.days",
     "daily_base": "layout.primary.slots.main.modules.0.days",
-    "daily_temp_high": "forecasts.0.highTemp",
-    "daily_temp_low": "forecasts.0.lowTemp",
-    "daily_condition": "condition",
-    "daily_datetime": "date",
+    "daily_temp_high": "max",
+    "daily_temp_low": "min",
+    "daily_condition": "forecastWord",
+    "daily_datetime": "dateISO",
 }
 
 

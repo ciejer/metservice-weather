@@ -71,7 +71,7 @@ class MetServiceMobile(SingleCoordinatorWeatherEntity):
     @property
     def native_temperature(self) -> float:
         """Return the platform temperature in native units (i.e. not converted)."""
-        return self.coordinator.get_current(FIELD_TEMP)
+        return self.coordinator.get_current_public(FIELD_TEMP)
 
     @property
     def native_temperature_unit(self) -> str:
@@ -81,7 +81,7 @@ class MetServiceMobile(SingleCoordinatorWeatherEntity):
     @property
     def native_pressure(self) -> float:
         """Return the pressure in native units."""
-        return self.coordinator.get_current(FIELD_PRESSURE)
+        return self.coordinator.get_current_public(FIELD_PRESSURE)
 
     @property
     def native_pressure_unit(self) -> str:
@@ -91,12 +91,12 @@ class MetServiceMobile(SingleCoordinatorWeatherEntity):
     @property
     def humidity(self) -> float:
         """Return the relative humidity in native units."""
-        return self.coordinator.get_current(FIELD_HUMIDITY)
+        return self.coordinator.get_current_public(FIELD_HUMIDITY)
 
     @property
     def native_wind_speed(self) -> float:
         """Return the wind speed in native units."""
-        return self.coordinator.get_current(FIELD_WINDSPEED)
+        return self.coordinator.get_current_public(FIELD_WINDSPEED)
 
     @property
     def native_wind_speed_unit(self) -> str:
@@ -106,7 +106,7 @@ class MetServiceMobile(SingleCoordinatorWeatherEntity):
     @property
     def wind_bearing(self) -> str:
         """Return the wind bearing."""
-        return self.coordinator.get_current(FIELD_WINDDIR)
+        return self.coordinator.get_current_public(FIELD_WINDDIR)
 
     @property
     def native_precipitation_unit(self) -> str:
@@ -116,9 +116,9 @@ class MetServiceMobile(SingleCoordinatorWeatherEntity):
     @property
     def condition(self) -> str:
         """Return the current condition."""
-        if self.coordinator.get_current(FIELD_CONDITIONS) in CONDITION_MAP:
-            return CONDITION_MAP[self.coordinator.get_current(FIELD_CONDITIONS)]
-        return self.coordinator.get_current(FIELD_CONDITIONS)
+        if self.coordinator.get_current_mobile(FIELD_CONDITIONS) in CONDITION_MAP:
+            return CONDITION_MAP[self.coordinator.get_current_mobile(FIELD_CONDITIONS)]
+        return self.coordinator.get_current_mobile(FIELD_CONDITIONS)
 
 
 class MetServiceForecastMobile(MetServiceMobile):
@@ -159,29 +159,29 @@ class MetServiceForecastMobile(MetServiceMobile):
         """Return the hourly forecast in native units."""
 
         forecast = []
-        hourly_readings = self.coordinator.get_current("hourly_temp")
+        hourly_readings = self.coordinator.get_current_mobile("hourly_base")
+        print(hourly_readings)
         for hour in range(
-            self.coordinator.get_current("hourly_skip"),
-            self.coordinator.get_current("hourly_obs")
-            + self.coordinator.get_current("hourly_skip"),
+            0,
+            len(hourly_readings)-1,
             1,
         ):
             this_hour = hourly_readings[hour]
 
             icon = "sunny"
-            if float(this_hour["rainfall"]) > 0:
+            if float(this_hour["rainFall"]) > 0:
                 # rainy
-                if float(this_hour["rainfall"]) > 6:
+                if float(this_hour["rainFall"]) > 6:
                     # pouring
                     icon = "pouring"
                 else:
                     icon = "rainy"
             else:
                 # clear
-                if float(this_hour["wind"]["speed"]) > 40:
+                if float(this_hour["windSpeed"]) > 40:
                     # windy
                     icon = "windy"
-                if 7 < datetime.fromisoformat(this_hour["date"]).hour < 19:
+                if 7 < datetime.fromisoformat(this_hour["dateISO"]).hour < 19:
                     # daytime
                     icon = "partlycloudy"
                 else:
@@ -193,10 +193,10 @@ class MetServiceForecastMobile(MetServiceMobile):
                     {
                         ATTR_FORECAST_TEMP: this_hour["temperature"],
                         ATTR_FORECAST_TIME: self.coordinator._format_timestamp(
-                            this_hour["date"]
+                            this_hour["dateISO"]
                         ),
-                        ATTR_FORECAST_PRECIPITATION: this_hour["rainfall"],
-                        ATTR_FORECAST_WIND_SPEED: this_hour["wind"]["speed"],
+                        ATTR_FORECAST_PRECIPITATION: this_hour["rainFall"],
+                        ATTR_FORECAST_WIND_SPEED: this_hour["windSpeed"],
                         ATTR_FORECAST_CONDITION: icon,
                     }
                 )
@@ -208,24 +208,24 @@ class MetServiceForecastMobile(MetServiceMobile):
         """Return the daily forecast in native units."""
 
         forecast = []
-        num_days = self.coordinator.get_forecast_daily("", 0)
+        num_days = self.coordinator.get_forecast_daily_mobile("", 0)
 
         for day in range(0, num_days):
-            day_condition = self.coordinator.get_forecast_daily("daily_condition", day)
+            day_condition = self.coordinator.get_forecast_daily_mobile("daily_condition", day)
             if day_condition in CONDITION_MAP:
                 day_condition = CONDITION_MAP[day_condition]
             forecast.append(
                 Forecast(
                     {
-                        ATTR_FORECAST_TEMP: self.coordinator.get_forecast_daily(
+                        ATTR_FORECAST_TEMP: self.coordinator.get_forecast_daily_mobile(
                             "daily_temp_high", day
                         ),
-                        ATTR_FORECAST_TEMP_LOW: self.coordinator.get_forecast_daily(
+                        ATTR_FORECAST_TEMP_LOW: self.coordinator.get_forecast_daily_mobile(
                             "daily_temp_low", day
                         ),
                         ATTR_FORECAST_CONDITION: day_condition,
                         ATTR_FORECAST_TIME: datetime.fromisoformat(
-                            self.coordinator.get_forecast_daily("daily_datetime", day)
+                            self.coordinator.get_forecast_daily_mobile("daily_datetime", day)
                         ),
                     }
                 )
@@ -238,7 +238,7 @@ class MetServicePublic(SingleCoordinatorWeatherEntity):
     @property
     def native_temperature(self) -> float:
         """Return the platform temperature in native units (i.e. not converted)."""
-        return self.coordinator.get_current(FIELD_TEMP)
+        return self.coordinator.get_current_public(FIELD_TEMP)
 
     @property
     def native_temperature_unit(self) -> str:
@@ -248,7 +248,7 @@ class MetServicePublic(SingleCoordinatorWeatherEntity):
     @property
     def native_pressure(self) -> float:
         """Return the pressure in native units."""
-        return self.coordinator.get_current(FIELD_PRESSURE)
+        return self.coordinator.get_current_public(FIELD_PRESSURE)
 
     @property
     def native_pressure_unit(self) -> str:
@@ -258,12 +258,12 @@ class MetServicePublic(SingleCoordinatorWeatherEntity):
     @property
     def humidity(self) -> float:
         """Return the relative humidity in native units."""
-        return int(self.coordinator.get_current(FIELD_HUMIDITY))
+        return int(self.coordinator.get_current_public(FIELD_HUMIDITY))
 
     @property
     def native_wind_speed(self) -> float:
         """Return the wind speed in native units."""
-        return self.coordinator.get_current(FIELD_WINDSPEED)
+        return self.coordinator.get_current_public(FIELD_WINDSPEED)
 
     @property
     def native_wind_speed_unit(self) -> str:
@@ -273,7 +273,7 @@ class MetServicePublic(SingleCoordinatorWeatherEntity):
     @property
     def wind_bearing(self) -> str:
         """Return the wind bearing."""
-        return self.coordinator.get_current(FIELD_WINDDIR)
+        return self.coordinator.get_current_public(FIELD_WINDDIR)
 
     @property
     def native_precipitation_unit(self) -> str:
@@ -283,9 +283,9 @@ class MetServicePublic(SingleCoordinatorWeatherEntity):
     @property
     def condition(self) -> str:
         """Return the current condition."""
-        if self.coordinator.get_current(FIELD_CONDITIONS) in CONDITION_MAP:
-            return CONDITION_MAP[self.coordinator.get_current(FIELD_CONDITIONS)]
-        return self.coordinator.get_current(FIELD_CONDITIONS)
+        if self.coordinator.get_current_public(FIELD_CONDITIONS) in CONDITION_MAP:
+            return CONDITION_MAP[self.coordinator.get_current_public(FIELD_CONDITIONS)]
+        return self.coordinator.get_current_public(FIELD_CONDITIONS)
 
 
 class MetServiceForecastPublic(MetServicePublic):
@@ -326,11 +326,11 @@ class MetServiceForecastPublic(MetServicePublic):
         """Return the hourly forecast in native units."""
 
         forecast = []
-        hourly_readings = self.coordinator.get_current("hourly_temp")
+        hourly_readings = self.coordinator.get_current_public("hourly_temp")
         for hour in range(
-            self.coordinator.get_current("hourly_skip"),
-            self.coordinator.get_current("hourly_obs")
-            + self.coordinator.get_current("hourly_skip"),
+            self.coordinator.get_current_public("hourly_skip"),
+            self.coordinator.get_current_public("hourly_obs")
+            + self.coordinator.get_current_public("hourly_skip"),
             1,
         ):
             this_hour = hourly_readings[hour]
@@ -375,24 +375,24 @@ class MetServiceForecastPublic(MetServicePublic):
         """Return the daily forecast in native units."""
 
         forecast = []
-        num_days = self.coordinator.get_forecast_daily("", 0)
+        num_days = self.coordinator.get_forecast_daily_public("", 0)
 
         for day in range(0, num_days):
-            day_condition = self.coordinator.get_forecast_daily("daily_condition", day)
+            day_condition = self.coordinator.get_forecast_daily_public("daily_condition", day)
             if day_condition in CONDITION_MAP:
                 day_condition = CONDITION_MAP[day_condition]
             forecast.append(
                 Forecast(
                     {
-                        ATTR_FORECAST_TEMP: self.coordinator.get_forecast_daily(
+                        ATTR_FORECAST_TEMP: self.coordinator.get_forecast_daily_public(
                             "daily_temp_high", day
                         ),
-                        ATTR_FORECAST_TEMP_LOW: self.coordinator.get_forecast_daily(
+                        ATTR_FORECAST_TEMP_LOW: self.coordinator.get_forecast_daily_public(
                             "daily_temp_low", day
                         ),
                         ATTR_FORECAST_CONDITION: day_condition,
                         ATTR_FORECAST_TIME: datetime.fromisoformat(
-                            self.coordinator.get_forecast_daily("daily_datetime", day)
+                            self.coordinator.get_forecast_daily_public("daily_datetime", day)
                         ),
                     }
                 )

@@ -207,14 +207,21 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 data_dict = None
         return data_dict
 
-    def get_current(self, field):
+    def get_current_public(self, field):
         """Get a specific key from the MetService returned data."""
 
         keys = SENSOR_MAP_PUBLIC[field].split(".")
         result = self.get_from_dict(self.data[RESULTS_CURRENT], keys)
         return result
 
-    def get_forecast_daily(self, field, day):
+    def get_current_mobile(self, field):
+        """Get a specific key from the MetService returned data."""
+
+        keys = SENSOR_MAP_MOBILE[field].split(".")
+        result = self.get_from_dict(self.data[RESULTS_CURRENT], keys)
+        return result
+
+    def get_forecast_daily_public(self, field, day):
         """Get a specific key from the MetService returned data."""
         all_days = self.data[RESULTS_FORECAST_DAILY]["layout"]["primary"]["slots"][
             "main"
@@ -225,6 +232,21 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         keys = [SENSOR_MAP_PUBLIC[field]]
         if "." in SENSOR_MAP_PUBLIC[field]:
             keys = SENSOR_MAP_PUBLIC[field].split(".")
+        result = self.get_from_dict(
+            this_day,
+            keys,
+        )
+        return result
+
+    def get_forecast_daily_mobile(self, field, day):
+        """Get a specific key from the MetService returned data."""
+        all_days = self.data["current"]["result"]["forecastData"]["days"]
+        if field == "":  # send a blank to get the number of days
+            return len(all_days)
+        this_day = all_days[day]
+        keys = [SENSOR_MAP_MOBILE[field]]
+        if "." in SENSOR_MAP_MOBILE[field]:
+            keys = SENSOR_MAP_MOBILE[field].split(".")
         result = self.get_from_dict(
             this_day,
             keys,
