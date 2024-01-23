@@ -1,61 +1,36 @@
 {
-    "config": {
-        "abort": {
-            "already_configured": "Location is already configured"
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "api": "Choose from Mobile (uses GPS location) or Public (choose a city)."
         },
-        "error": {
-            "cannot_connect": "Failed to connect",
-            "invalid_api_key": "Invalid API key"
+        "data_description": {
+          "api": "Mobile requires API key. See https://github.com/ciejer/metservice-weather/issues/12 for details"
         },
-        "step": {
-            "user": {
-                "data": {
-                    "api_key": "API Key",
-                    "language": "Language",
-                    "latitude": "Latitude",
-                    "location_name": "Location to get forecasts for",
-                    "longitude": "Longitude",
-                    "mode": "Forecast mode for the Weather entity",
-                    "name": "Integration Name",
-                    "units": "Units for sensors. Only used for if sensors are requested.",
-                    "forecast": "Daily forecasts sensors in csv form from 0-7 (ex. '0,1,3'). Only used if sensors are requested.",
-                    "hourly_forecast": "Hourly forecast sensors in csv form from 0-168 (ex. '0,1,10'). Only used if sensors are requested.",
-                    "monitored_conditions": "Monitored conditions to create sensors for. Only used if sensors are requested.",
-                    "pw_platform": "Weather Entity and/or Sensor Entity. Sensor will create entities for each condition at each time. If unsure, only select Weather!",
-                    "pw_round": "Round values to the nearest integer. Ensure that the selected units match the system units.",
-                    "scan_interval": "Seconds to wait between updates. Reducing this below 900 seconds (15 minutes) is not recomended."
-                },
-                "description": "Set up MetService New Zealand integration.",
-                "data_description": {
-                    "forecast": "ex. '0,1,4' (without quotes)",
-                    "hourly_forecast": "ex. '0,1,4' (without quotes)"
-                }
-            }
-        }
+        "description": "Set up MetService integration."
+      },
+      "public": {
+        "data": {
+          "location": "Choose your city",
+          "name": "Name of the integration"
+        },
+        "description": "Set up Public API for MetService integration."
+      },
+      "mobile": {
+        "data": {
+          "api_key": "Mobile requires API key. ",
+          "name": "Name of the integration"
+        },
+        "data_description": {
+          "api_key": "See https://github.com/ciejer/metservice-weather/issues/12 for details"
+        },
+        "description": "Set up Mobile API for MetService integration."
+      }
     },
-    "options": {
-        "step": {
-            "init": {
-                "data": {
-                    "api_key": "API Key",
-                    "language": "Language",
-                    "latitude": "Latitude",
-                    "longitude": "Longitude",
-                    "mode": "Forecast mode for the Weather entity",
-                    "name": "Integration Name",
-                    "units": "Units for sensors. Only used for if sensors are requested.",
-                    "forecast": "Daily forecasts sensors in csv form from 0-7 (ex. '0,1,3'). Only used if sensors are requested.\n NOTE: Removing sensors will produce orphaned entities that need to be deleted.",
-                    "hourly_forecast": "Hourly forecast sensors in csv form from 0-168 (ex. '0,1,10'). Only used if sensors are requested.\n NOTE: Removing sensors will produce orphaned entities that need to be deleted.",
-                    "monitored_conditions": "Monitored conditions to create sensors for. Only used if sensors are requested.\n NOTE: Removing sensors will produce orphaned entities that need to be deleted.",
-                    "pw_platform": "Weather Entity and/or Sensor Entity. Sensor will create entities for each condition at each time. If unsure, only select Weather!",
-                    "pw_round": "Round values to the nearest integer. Ensure that the selected units match the system units."
-                },
-                "description": "Set up MetService New Zealand integration.",
-                "data_description": {
-                    "forecast": "ex. '0,1,4'.\n To remove existing sensors, type 'None' (without quotes).",
-                    "hourly_forecast": "ex. '0,1,4'.\n To remove existing sensors, type 'None' (without quotes)."
-                }
-            }
-        }
+    "error": {
+      "invalid_api_key": "[%key:common::config_flow::error::invalid_api_key%]",
+      "unknown_error": "Unknown Error"
     }
+  }
 }

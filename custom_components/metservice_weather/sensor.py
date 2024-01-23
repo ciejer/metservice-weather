@@ -23,11 +23,13 @@ from .coordinator import WeatherUpdateCoordinator
 from .const import (
     CONF_ATTRIBUTION,
     DOMAIN,
-    SENSOR_MAP,
+    SENSOR_MAP_PUBLIC,
+    SENSOR_MAP_MOBILE,
     RESULTS_CURRENT,
 )
 from .weather_current_conditions_sensors import (
-    current_condition_sensor_descriptions,
+    current_condition_sensor_descriptions_public,
+    current_condition_sensor_descriptions_mobile,
     WeatherSensorEntityDescription,
 )
 import contextlib
@@ -35,9 +37,12 @@ import contextlib
 _LOGGER = logging.getLogger(__name__)
 
 # Declaration of supported MetService observation/condition sensors
-SENSOR_DESCRIPTIONS: tuple[
+SENSOR_DESCRIPTIONS_PUBLIC: tuple[
     WeatherSensorEntityDescription, ...
-] = current_condition_sensor_descriptions
+] = current_condition_sensor_descriptions_public
+SENSOR_DESCRIPTIONS_MOBILE: tuple[
+    WeatherSensorEntityDescription, ...
+] = current_condition_sensor_descriptions_mobile
 
 
 async def async_setup_entry(
@@ -45,9 +50,16 @@ async def async_setup_entry(
 ) -> None:
     """Add MetService entities from a config_entry."""
     coordinator: WeatherUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
-    sensors = [
-        WeatherSensor(coordinator, description) for description in SENSOR_DESCRIPTIONS
-    ]
+    if entry.data["api"] == "mobile":
+        sensors = [
+            WeatherSensor(coordinator, description)
+            for description in SENSOR_DESCRIPTIONS_MOBILE
+        ]
+    else:
+        sensors = [
+            WeatherSensor(coordinator, description)
+            for description in SENSOR_DESCRIPTIONS_PUBLIC
+        ]
 
     async_add_entities(sensors)
 
@@ -79,9 +91,14 @@ class WeatherSensor(CoordinatorEntity, SensorEntity):
             hass=coordinator.hass,
         )
         self._unit_system = coordinator.unit_system
-        self._sensor_data = _get_sensor_data(
-            coordinator.data, description.key, self._unit_system
-        )
+        if self.coordinator.api_type == 'mobile':
+            self._sensor_data = _get_sensor_data_mobile(
+                coordinator.data, description.key, self._unit_system
+            )
+        else:
+            self._sensor_data = _get_sensor_data_public(
+                coordinator.data, description.key, self._unit_system
+            )
         self._attr_native_unit_of_measurement = (
             self.entity_description.unit_fn(
                 self.coordinator.hass.config.units is METRIC_SYSTEM
@@ -113,13 +130,18 @@ class WeatherSensor(CoordinatorEntity, SensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle data update."""
-        self._sensor_data = _get_sensor_data(
-            self.coordinator.data, self.entity_description.key, self._unit_system
-        )
+        if self.coordinator.api_type == 'mobile':
+            self._sensor_data = _get_sensor_data_mobile(
+                self.coordinator.data, self.entity_description.key, self._unit_system
+            )
+        else:
+            self._sensor_data = _get_sensor_data_public(
+                self.coordinator.data, self.entity_description.key, self._unit_system
+            )
         self.async_write_ha_state()
 
 
-def _get_sensor_data(sensors: dict[str, Any], kind: str, unit_system: str) -> Any:
+def _get_sensor_data_mobile(sensors: dict[str, Any], kind: str, unit_system: str) -> Any:
     """Get sensor data."""
 
     def get_from_dict(data_dict, map_list):
@@ -132,7 +154,30 @@ def _get_sensor_data(sensors: dict[str, Any], kind: str, unit_system: str) -> An
                 data_dict = None
         return data_dict
 
-    keys = SENSOR_MAP[kind].split(".")
+    keys = SENSOR_MAP_MOBILE[kind].split(".")
+    result = get_from_dict(sensors[RESULTS_CURRENT], keys)
+    return result
+    # # windGust is often null. When it is, set it to windSpeed instead.
+    # if kind == FIELD_WINDGUST and sensors[RESULTS_CURRENT][kind] == None:
+    #     return sensors[RESULTS_CURRENT][FIELD_WINDSPEED]
+    # else:
+    #     return sensors[RESULTS_CURRENT][kind]
+
+
+def _get_sensor_data_public(sensors: dict[str, Any], kind: str, unit_system: str) -> Any:
+    """Get sensor data."""
+
+    def get_from_dict(data_dict, map_list):
+        for key in map_list:
+            with contextlib.suppress(ValueError):
+                key = int(key)
+            try:
+                data_dict = data_dict[key]
+            except Exception:
+                data_dict = None
+        return data_dict
+
+    keys = SENSOR_MAP_PUBLIC[kind].split(".")
     result = get_from_dict(sensors[RESULTS_CURRENT], keys)
     return result
     # # windGust is often null. When it is, set it to windSpeed instead.
