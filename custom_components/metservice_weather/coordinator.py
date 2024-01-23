@@ -124,7 +124,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 url = f"{self._api_url}/{self._latitude}/{self._longitude}"
                 response = await self._session.get(url, headers=headers)
                 result_current = await response.json(content_type=None)
-                print(result_current)
+                # print(result_current)
                 if result_current is None:
                     raise ValueError("NO CURRENT RESULT")
                 self._check_errors(url, result_current)
@@ -161,7 +161,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 url = f"{self._api_url}/locations/{self.location}"
                 response = await self._session.get(url, headers=headers)
                 result_current = await response.json(content_type=None)
-                print(result_current)
+                # print(result_current)
                 if result_current is None:
                     raise ValueError("NO CURRENT RESULT")
                 self._check_errors(url, result_current)

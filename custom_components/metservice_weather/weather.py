@@ -71,7 +71,7 @@ class MetServiceMobile(SingleCoordinatorWeatherEntity):
     @property
     def native_temperature(self) -> float:
         """Return the platform temperature in native units (i.e. not converted)."""
-        return self.coordinator.get_current_public(FIELD_TEMP)
+        return self.coordinator.get_current_mobile(FIELD_TEMP)
 
     @property
     def native_temperature_unit(self) -> str:
@@ -96,7 +96,7 @@ class MetServiceMobile(SingleCoordinatorWeatherEntity):
     @property
     def native_wind_speed(self) -> float:
         """Return the wind speed in native units."""
-        return self.coordinator.get_current_public(FIELD_WINDSPEED)
+        return self.coordinator.get_current_mobile(FIELD_WINDSPEED)
 
     @property
     def native_wind_speed_unit(self) -> str:
@@ -106,7 +106,7 @@ class MetServiceMobile(SingleCoordinatorWeatherEntity):
     @property
     def wind_bearing(self) -> str:
         """Return the wind bearing."""
-        return self.coordinator.get_current_public(FIELD_WINDDIR)
+        return self.coordinator.get_current_mobile(FIELD_WINDDIR)
 
     @property
     def native_precipitation_unit(self) -> str:
@@ -160,7 +160,6 @@ class MetServiceForecastMobile(MetServiceMobile):
 
         forecast = []
         hourly_readings = self.coordinator.get_current_mobile("hourly_base")
-        print(hourly_readings)
         for hour in range(
             0,
             len(hourly_readings)-1,

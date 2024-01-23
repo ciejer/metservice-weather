@@ -21,10 +21,8 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up the MetService Weather component."""
-    name = entry.data[CONF_NAME]
     api = entry.data["api"]
     hass.data.setdefault(DOMAIN, {})
-    print(api)
 
     unit_system_api = API_URL_METRIC
     unit_system = API_METRIC

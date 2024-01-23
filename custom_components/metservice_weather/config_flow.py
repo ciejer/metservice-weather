@@ -28,7 +28,7 @@ class WeatherFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
     async def async_step_user(self, user_input=None):
-        """Allow user to decide between mobile API or public API"""
+        """Allow user to decide between mobile API or public API."""
         if user_input is None:
             return await self._show_user_form(user_input)
 
@@ -144,7 +144,7 @@ class WeatherFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             with async_timeout.timeout(10):
                 # Use English and US units for the initial test API call. User-supplied units and language will be used for
                 # the created entities.
-                url = f"https://api.metservice.com/mobile/nz/weatherData/-43.123/172.123"
+                url = "https://api.metservice.com/mobile/nz/weatherData/-43.123/172.123"
                 response = await session.get(url, headers=headers)
             # _LOGGER.debug(response.status)
             if response.status != HTTPStatus.OK:
