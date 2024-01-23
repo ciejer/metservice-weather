@@ -72,7 +72,8 @@ class WeatherFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             with async_timeout.timeout(10):
                 # Use English and US units for the initial test API call. User-supplied units and language will be used for
                 # the created entities.
-                url = f"https://www.metservice.com/publicData/webdata/towns-cities/locations/{location}"
+                print(location)
+                url = f"https://www.metservice.com/publicData/webdata{location}"
                 response = await session.get(url, headers=headers)
             # _LOGGER.debug(response.status)
             if response.status != HTTPStatus.OK:

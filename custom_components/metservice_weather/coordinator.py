@@ -158,7 +158,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         }
         try:
             with async_timeout.timeout(10):
-                url = f"{self._api_url}/locations/{self.location}"
+                url = f"{self._api_url}{self.location}"
                 response = await self._session.get(url, headers=headers)
                 result_current = await response.json(content_type=None)
                 # print(result_current)
@@ -166,7 +166,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                     raise ValueError("NO CURRENT RESULT")
                 self._check_errors(url, result_current)
             with async_timeout.timeout(10):
-                url = f"{self._api_url}/locations/{self.location}/7-days"
+                url = f"{self._api_url}{self.location}/7-days"
                 response = await self._session.get(url, headers=headers)
                 result_daily = await response.json(content_type=None)
                 if result_daily is None:
