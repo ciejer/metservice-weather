@@ -257,7 +257,8 @@ class MetServicePublic(SingleCoordinatorWeatherEntity):
     @property
     def humidity(self) -> float:
         """Return the relative humidity in native units."""
-        return int(self.coordinator.get_current_public(FIELD_HUMIDITY))
+        humidity = self.coordinator.get_current_public(FIELD_HUMIDITY)
+        return int(humidity) if humidity is not None else None
 
     @property
     def native_wind_speed(self) -> float:
@@ -326,10 +327,22 @@ class MetServiceForecastPublic(MetServicePublic):
 
         forecast = []
         hourly_readings = self.coordinator.get_current_public("hourly_temp")
+        hourly_obs = self.coordinator.get_current_public("hourly_obs")
+        hourly_skip = self.coordinator.get_current_public("hourly_skip")
+
+        if hourly_obs is None: #Handles regions which do not have daily data
+            hourly_obs = self.coordinator.get_current_public("hourly_bkp_obs")
+
+        if hourly_skip is None:
+            hourly_skip = self.coordinator.get_current_public("hourly_bkp_skip")
+
+        if hourly_readings is None:
+            hourly_readings = self.coordinator.get_current_public("hourly_bkp_temp")
+
+
         for hour in range(
-            self.coordinator.get_current_public("hourly_skip"),
-            self.coordinator.get_current_public("hourly_obs")
-            + self.coordinator.get_current_public("hourly_skip"),
+            hourly_skip,
+            hourly_obs + hourly_skip,
             1,
         ):
             this_hour = hourly_readings[hour]
@@ -375,24 +388,26 @@ class MetServiceForecastPublic(MetServicePublic):
 
         forecast = []
         num_days = self.coordinator.get_forecast_daily_public("", 0)
-
         for day in range(0, num_days):
             day_condition = self.coordinator.get_forecast_daily_public("daily_condition", day)
+            daily_temp_high = self.coordinator.get_forecast_daily_public("daily_temp_high", day)
+            daily_temp_low = self.coordinator.get_forecast_daily_public("daily_temp_low", day)
+            daily_datetime = self.coordinator.get_forecast_daily_public("daily_datetime", day)
+            if daily_temp_high is None: #Rural areas have data in a different location
+                daily_temp_high = self.coordinator.get_forecast_daily_public("daily_bkp_temp_high", day)
+            if daily_temp_low is None:
+                daily_temp_low = self.coordinator.get_forecast_daily_public("daily_bkp_temp_low", day)
+            if daily_datetime is None:
+                daily_datetime = self.coordinator.get_forecast_daily_public("daily_bkp_datetime", day)
             if day_condition in CONDITION_MAP:
                 day_condition = CONDITION_MAP[day_condition]
             forecast.append(
                 Forecast(
                     {
-                        ATTR_FORECAST_TEMP: self.coordinator.get_forecast_daily_public(
-                            "daily_temp_high", day
-                        ),
-                        ATTR_FORECAST_TEMP_LOW: self.coordinator.get_forecast_daily_public(
-                            "daily_temp_low", day
-                        ),
+                        ATTR_FORECAST_TEMP: daily_temp_high,
+                        ATTR_FORECAST_TEMP_LOW: daily_temp_low,
                         ATTR_FORECAST_CONDITION: day_condition,
-                        ATTR_FORECAST_TIME: datetime.fromisoformat(
-                            self.coordinator.get_forecast_daily_public("daily_datetime", day)
-                        ),
+                        ATTR_FORECAST_TIME: daily_datetime,
                     }
                 )
             )

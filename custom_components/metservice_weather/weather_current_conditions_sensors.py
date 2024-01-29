@@ -78,7 +78,7 @@ current_condition_sensor_descriptions_public = [
         key="uvIndex",
         name="UV Index",
         icon="mdi:sunglasses",
-        value_fn=lambda data, _: cast(str, data.replace("status-", "")),
+        value_fn=lambda data, _: cast(str, data.replace("status-", "") if data else None),
     ),
     WeatherSensorEntityDescription(
         key=FIELD_WINDDIR,
@@ -166,13 +166,13 @@ current_condition_sensor_descriptions_public = [
         key="drying_index_morning",
         name="Clothes Drying Time - Morning",
         icon="mdi:tshirt-crew",
-        value_fn=lambda data, _: cast(str, data.replace("Morning: ", "")),
+        value_fn=lambda data, _: cast(str, data.replace("Morning: ", "")) if data else None,
     ),
     WeatherSensorEntityDescription(
         key="drying_index_afternoon",
         name="Clothes Drying Time - Afternoon",
         icon="mdi:tshirt-crew",
-        value_fn=lambda data, _: cast(str, data.replace("Afternoon: ", "")),
+        value_fn=lambda data, _: cast(str, data.replace("Afternoon: ", "")) if data else None,
     ),
     # Tides not available in all cities, so leaving commented for now
     WeatherSensorEntityDescription(
