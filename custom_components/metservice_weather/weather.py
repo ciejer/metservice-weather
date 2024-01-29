@@ -329,7 +329,7 @@ class MetServiceForecastPublic(MetServicePublic):
         hourly_readings = self.coordinator.get_current_public("hourly_temp")
         hourly_obs = self.coordinator.get_current_public("hourly_obs")
         hourly_skip = self.coordinator.get_current_public("hourly_skip")
-        print(hourly_readings , hourly_obs, hourly_skip)
+        # print(hourly_readings , hourly_obs, hourly_skip)
         if hourly_obs is None: #Handles regions which do not have daily data
             hourly_obs = self.coordinator.get_current_public("hourly_bkp_obs")
 
@@ -338,7 +338,7 @@ class MetServiceForecastPublic(MetServicePublic):
 
         if hourly_readings is None:
             hourly_readings = self.coordinator.get_current_public("hourly_bkp_temp")
-        print(hourly_readings , hourly_obs, hourly_skip)
+        # print(hourly_readings , hourly_obs, hourly_skip)
 
         for hour in range(
             hourly_skip,
