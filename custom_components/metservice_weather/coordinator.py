@@ -209,10 +209,12 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
 
     def get_current_public(self, field):
         """Get a specific key from the MetService returned data."""
-
-        keys = SENSOR_MAP_PUBLIC[field].split(".")
-        result = self.get_from_dict(self.data[RESULTS_CURRENT], keys)
-        return result
+        try:
+            keys = SENSOR_MAP_PUBLIC[field].split(".")
+            result = self.get_from_dict(self.data[RESULTS_CURRENT], keys)
+            return result
+        except Exception:
+            return None  # Return a dummy value if an error occurs
 
     def get_current_mobile(self, field):
         """Get a specific key from the MetService returned data."""
