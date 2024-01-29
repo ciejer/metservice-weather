@@ -388,7 +388,6 @@ class MetServiceForecastPublic(MetServicePublic):
 
         forecast = []
         num_days = self.coordinator.get_forecast_daily_public("", 0)
-        print(num_days)
         for day in range(0, num_days):
             day_condition = self.coordinator.get_forecast_daily_public("daily_condition", day)
             daily_temp_high = self.coordinator.get_forecast_daily_public("daily_temp_high", day)
