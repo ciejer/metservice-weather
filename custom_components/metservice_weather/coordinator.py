@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 import logging
 from typing import Any
 
-import contextlib
 import aiohttp
 import async_timeout
 import pytz
@@ -197,15 +196,30 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             )
 
     def get_from_dict(self, data_dict, map_list):
-        """Get a value from a dictionary using a list of keys."""
-        for key in map_list:
-            with contextlib.suppress(ValueError):
-                key = int(key)
-            try:
-                data_dict = data_dict[key]
-            except Exception:
-                data_dict = None
-        return data_dict
+        """Recursively look for a given key path within a dictionary."""
+        if not map_list:
+            return data_dict
+        if isinstance(data_dict, list):
+            for idx, item in enumerate(data_dict):
+                if map_list[0].isdigit() and idx == int(map_list[0]):
+                    result = self.get_from_dict(item, map_list[1:])
+                    if result is not None:
+                        return result
+                else:
+                    result = self.get_from_dict(item, map_list)
+                    if result is not None:
+                        return result
+        elif isinstance(data_dict, dict):
+            for key, value in data_dict.items():
+                if key == map_list[0]:
+                    result = self.get_from_dict(value, map_list[1:])
+                    if result is not None:
+                        return result
+                else:
+                    result = self.get_from_dict(value, map_list)
+                    if result is not None:
+                        return result
+        return None
 
     def get_current_public(self, field):
         """Get a specific key from the MetService returned data."""
