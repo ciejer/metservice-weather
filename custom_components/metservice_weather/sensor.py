@@ -32,7 +32,6 @@ from .weather_current_conditions_sensors import (
     current_condition_sensor_descriptions_mobile,
     WeatherSensorEntityDescription,
 )
-import contextlib
 
 _LOGGER = logging.getLogger(__name__)
 
