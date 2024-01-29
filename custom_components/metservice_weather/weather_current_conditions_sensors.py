@@ -158,8 +158,7 @@ current_condition_sensor_descriptions_public = [
         value_fn=lambda data, _: cast(
             str, ". ".join(i.capitalize() for i in data.lstrip(" ")[0:254].split(". "))
         )
-        if isinstance(data, list)
-        else None,
+        if data else None,
         # Pollen Type can be very long, so truncate to 254 characters; and capitalise each sentence
     ),
     WeatherSensorEntityDescription(

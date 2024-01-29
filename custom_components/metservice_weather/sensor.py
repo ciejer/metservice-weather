@@ -145,14 +145,29 @@ def _get_sensor_data_mobile(sensors: dict[str, Any], kind: str, unit_system: str
     """Get sensor data."""
 
     def get_from_dict(data_dict, map_list):
-        for key in map_list:
-            with contextlib.suppress(ValueError):
-                key = int(key)
-            try:
-                data_dict = data_dict[key]
-            except Exception:
-                data_dict = None
-        return data_dict
+        if not map_list:
+            return data_dict
+        if isinstance(data_dict, list):
+            for idx, item in enumerate(data_dict):
+                if map_list[0].isdigit() and idx == int(map_list[0]):
+                    result = get_from_dict(item, map_list[1:])
+                    if result is not None:
+                        return result
+                else:
+                    result = get_from_dict(item, map_list)
+                    if result is not None:
+                        return result
+        elif isinstance(data_dict, dict):
+            for key, value in data_dict.items():
+                if key == map_list[0]:
+                    result = get_from_dict(value, map_list[1:])
+                    if result is not None:
+                        return result
+                else:
+                    result = get_from_dict(value, map_list)
+                    if result is not None:
+                        return result
+        return None
 
     keys = SENSOR_MAP_MOBILE[kind].split(".")
     result = get_from_dict(sensors[RESULTS_CURRENT], keys)
@@ -168,14 +183,29 @@ def _get_sensor_data_public(sensors: dict[str, Any], kind: str, unit_system: str
     """Get sensor data."""
 
     def get_from_dict(data_dict, map_list):
-        for key in map_list:
-            with contextlib.suppress(ValueError):
-                key = int(key)
-            try:
-                data_dict = data_dict[key]
-            except Exception:
-                data_dict = None
-        return data_dict
+        if not map_list:
+            return data_dict
+        if isinstance(data_dict, list):
+            for idx, item in enumerate(data_dict):
+                if map_list[0].isdigit() and idx == int(map_list[0]):
+                    result = get_from_dict(item, map_list[1:])
+                    if result is not None:
+                        return result
+                else:
+                    result = get_from_dict(item, map_list)
+                    if result is not None:
+                        return result
+        elif isinstance(data_dict, dict):
+            for key, value in data_dict.items():
+                if key == map_list[0]:
+                    result = get_from_dict(value, map_list[1:])
+                    if result is not None:
+                        return result
+                else:
+                    result = get_from_dict(value, map_list)
+                    if result is not None:
+                        return result
+        return None
 
     keys = SENSOR_MAP_PUBLIC[kind].split(".")
     result = get_from_dict(sensors[RESULTS_CURRENT], keys)
