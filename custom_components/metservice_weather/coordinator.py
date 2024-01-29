@@ -196,7 +196,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             )
 
     def get_from_dict(self, data_dict, map_list):
-        """Recursively look for a given key path within a dictionary"""
+        """Recursively look for a given key path within a dictionary."""
         if not map_list:
             return data_dict
         if isinstance(data_dict, list):
