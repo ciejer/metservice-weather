@@ -271,5 +271,5 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
 
     @classmethod
     def _format_timestamp(cls, timestamp_val):
-        return datetime.fromisoformat(timestamp_val).astimezone(pytz.utc)
+        return datetime.fromisoformat(timestamp_val).astimezone(pytz.utc).isoformat()
         # return datetime.utcfromtimestamp(timestamp_secs).isoformat("T") + "Z"
