@@ -123,8 +123,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         }
         try:
             with async_timeout.timeout(10):
-                # url = f"{self._api_url}/{self._latitude}/{self._longitude}"
-                url = f"{self._api_url}/-39.066/174.083"
+                url = f"{self._api_url}/{self._latitude}/{self._longitude}"
                 response = await self._session.get(url, headers=headers)
                 result_current = await response.json(content_type=None)
                 # print(result_current)
