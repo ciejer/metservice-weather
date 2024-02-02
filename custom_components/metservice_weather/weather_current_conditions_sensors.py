@@ -162,6 +162,24 @@ current_condition_sensor_descriptions_public = [
         # Pollen Type can be very long, so truncate to 254 characters; and capitalise each sentence
     ),
     WeatherSensorEntityDescription(
+        key="weather_warnings",
+        name="MetService Weather Warnings",
+        icon="mdi:alert",
+        value_fn=lambda data, _: cast(str, data),
+    ),
+    WeatherSensorEntityDescription(
+        key="fire_season",
+        name="Fire Season",
+        icon="mdi:fire",
+        value_fn=lambda data, _: cast(str, data),
+    ),
+    WeatherSensorEntityDescription(
+        key="fire_danger",
+        name="Fire Danger",
+        icon="mdi:fire",
+        value_fn=lambda data, _: cast(str, data),
+    ),
+    WeatherSensorEntityDescription(
         key="drying_index_morning",
         name="Clothes Drying Time - Morning",
         icon="mdi:tshirt-crew",
@@ -334,7 +352,24 @@ current_condition_sensor_descriptions_mobile = [
         icon="mdi:tshirt-crew",
         value_fn=lambda data, _: cast(str, data.replace("Afternoon: ", "")),
     ),
-    # Tides not available in all cities, so leaving commented for now
+    WeatherSensorEntityDescription(
+        key="weather_warnings",
+        name="MetService Weather Warnings",
+        icon="mdi:alert",
+        value_fn=lambda data, _: cast(str, data),
+    ),
+    WeatherSensorEntityDescription(
+        key="fire_season",
+        name="Fire Season",
+        icon="mdi:fire",
+        value_fn=lambda data, _: cast(str, data),
+    ),
+    WeatherSensorEntityDescription(
+        key="fire_danger",
+        name="Fire Danger",
+        icon="mdi:fire",
+        value_fn=lambda data, _: cast(str, data),
+    ),
     WeatherSensorEntityDescription(
         key="tides_high",
         name="Next High Tide",

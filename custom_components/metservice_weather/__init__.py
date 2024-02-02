@@ -12,7 +12,7 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 from .coordinator import WeatherUpdateCoordinator, WeatherUpdateCoordinatorConfig
-from .const import DOMAIN, MOBILE_URL, PUBLIC_URL, API_METRIC, API_URL_METRIC
+from .const import DOMAIN, MOBILE_URL, PUBLIC_URL, MOBILE_WARNINGS_URL, PUBLIC_WARNINGS_URL, API_METRIC, API_URL_METRIC
 
 PLATFORMS: Final = [Platform.WEATHER, Platform.SENSOR]
 
@@ -38,6 +38,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             unit_system_api=unit_system_api,
             unit_system=unit_system,
             api_url=PUBLIC_URL,
+            warnings_url=PUBLIC_WARNINGS_URL,
             api_key='1',
         )
 
@@ -62,6 +63,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             unit_system_api=unit_system_api,
             unit_system=unit_system,
             api_url=MOBILE_URL,
+            warnings_url=MOBILE_WARNINGS_URL,
             api_key=api_key,
         )
 
