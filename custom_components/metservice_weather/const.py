@@ -49,6 +49,9 @@ SENSOR_MAP_MOBILE: Final[dict[str, str]] = {
     "daily_temp_low": "min",
     "daily_condition": "forecastWord",
     "daily_datetime": "dateISO",
+    "weather_warnings": "weather_warnings",
+    "fire_season": "days.0.fireWeather.season.short",
+    "fire_danger": "days.0.fireWeather.danger.dailyObservation",
 }
 
 
@@ -83,6 +86,9 @@ SENSOR_MAP_PUBLIC: Final[dict[str, str]] = {
     "daily_bkp_temp_low": "forecasts.1.lowTemp",
     "daily_condition": "condition",
     "daily_datetime": "date",
+    "weather_warnings": "weather_warnings",
+    "fire_season": "fireWeatherData.fireWeather.season.short",
+    "fire_danger": "fireWeatherData.fireWeather.danger.forecast",
 }
 
 CONDITION_MAP: Final[dict[str, str]] = {
@@ -224,7 +230,9 @@ LOCATIONS = [
 
 
 PUBLIC_URL = "https://www.metservice.com/publicData/webdata"
+PUBLIC_WARNINGS_URL = "https://www.metservice.com/publicData/webdata/warnings-service"
 MOBILE_URL = "https://api.metservice.com/mobile/nz/weatherData"
+MOBILE_WARNINGS_URL = "https://api.metservice.com"
 API_METRIC: Final = "metric"
 API_URL_METRIC: Final = "m"
 DEFAULT_LOCATION = "tauranga"

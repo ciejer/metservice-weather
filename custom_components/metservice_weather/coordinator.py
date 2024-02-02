@@ -40,6 +40,7 @@ class WeatherUpdateCoordinatorConfig:
     """Class representing coordinator configuration."""
 
     api_url: str
+    warnings_url: str
     api_key: str
     api_type: str
     unit_system_api: str
@@ -60,6 +61,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         """Initialize."""
         self._hass = hass
         self._api_url = config.api_url
+        self._warnings_url = config.warnings_url
         self._api_key = config.api_key
         self._api_type = config.api_type
         self._location = config.location
@@ -127,6 +129,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 if result_current is None:
                     raise ValueError("NO CURRENT RESULT")
                 self._check_errors(url, result_current)
+            warnings_text = '\n'.join([f"{warning['name']}, {warning['markdown']}" for warning in result_current['result']['warnings'].get('previews', [])]).replace('**', '').replace('#', '').replace('\n', ' ')
             with async_timeout.timeout(10):
                 url = f"{self._api_url}/locations/{self.location}/7-days"
                 response = await self._session.get(url, headers=headers)
@@ -134,12 +137,12 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 if result_daily is None:
                     raise ValueError("NO CURRENT RESULT")
                 self._check_errors(url, result_daily)
+            result_current['weather_warnings'] = warnings_text
             result = {
                 RESULTS_CURRENT: result_current,
                 RESULTS_FORECAST_DAILY: result_daily,
             }
             self.data = result
-
             return result
 
         except ValueError as err:
@@ -165,12 +168,21 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                     raise ValueError("NO CURRENT RESULT")
                 self._check_errors(url, result_current)
             with async_timeout.timeout(10):
+                url = f"{self._warnings_url}/{result_current['location']['type']}/{result_current['location']['key']}"
+                response = await self._session.get(url, headers=headers)
+                result_warnings = await response.json(content_type=None)
+                if result_warnings is None:
+                    raise ValueError("NO WARNINGS RESULT")
+                self._check_errors(url, result_warnings)
+                warnings_text = '\n'.join([f"{warning['name']}, {warning['text']}, {warning['threatPeriod']}" for warning in result_warnings.get('warnings', [])])
+            with async_timeout.timeout(10):
                 url = f"{self._api_url}{self.location}/7-days"
                 response = await self._session.get(url, headers=headers)
                 result_daily = await response.json(content_type=None)
                 if result_daily is None:
                     raise ValueError("NO CURRENT RESULT")
                 self._check_errors(url, result_daily)
+            result_current['weather_warnings'] = warnings_text
             result = {
                 RESULTS_CURRENT: result_current,
                 RESULTS_FORECAST_DAILY: result_daily,
