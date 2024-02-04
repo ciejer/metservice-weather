@@ -223,9 +223,7 @@ class MetServiceForecastMobile(MetServiceMobile):
                             "daily_temp_low", day
                         ),
                         ATTR_FORECAST_CONDITION: day_condition,
-                        ATTR_FORECAST_TIME: datetime.fromisoformat(
-                            self.coordinator.get_forecast_daily_mobile("daily_datetime", day)
-                        ),
+                        ATTR_FORECAST_TIME: self.coordinator.get_forecast_daily_mobile("daily_datetime", day),
                     }
                 )
             )
