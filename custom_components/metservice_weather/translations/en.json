@@ -3,7 +3,8 @@
     "step": {
       "user": {
         "data": {
-          "api": "Choose from Mobile (uses GPS location) or Public (choose a city)."
+          "api": "Choose from Mobile (uses GPS location) or Public (choose a city).",
+          "enable_tides": "Enable tide information (You'll need to choose your marine forecast region)."
         },
         "data_description": {
           "api": "Mobile requires API key. See https://github.com/ciejer/metservice-weather/issues/12 for details"
@@ -26,6 +27,18 @@
           "api_key": "See https://github.com/ciejer/metservice-weather/issues/12 for details"
         },
         "description": "Set up Mobile API for MetService integration."
+      },
+      "tide_region": {
+        "data": {
+          "tide_region": "Select your region"
+        },
+        "description": "Choose your region for tide information."
+      },
+      "tide_location": {
+        "data": {
+          "location": "Select the closest point to you for tide information."
+        },
+        "description": "Choose a location for local tides."
       }
     },
     "error": {
