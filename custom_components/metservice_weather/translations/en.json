@@ -26,6 +26,18 @@
           "api_key": "See https://github.com/ciejer/metservice-weather/issues/12 for details"
         },
         "description": "Set up Mobile API for MetService integration."
+      },
+      "tide_region": {
+        "data": {
+          "tide_region": "Select your region"
+        },
+        "description": "Choose your region for tide information."
+      },
+      "tide_location": {
+        "data": {
+          "location": "Select the closest point to you for tide information."
+        },
+        "description": "Choose a location for local tides."
       }
     },
     "error": {
