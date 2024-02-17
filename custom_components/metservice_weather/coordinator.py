@@ -28,7 +28,6 @@ from .const import (
     SENSOR_MAP_PUBLIC,
     RESULTS_CURRENT,
     RESULTS_FORECAST_DAILY,
-    RESULTS_TIDES,
 )
 
 _LOGGER = logging.getLogger(__name__)

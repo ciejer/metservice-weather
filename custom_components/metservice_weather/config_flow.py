@@ -35,7 +35,6 @@ class WeatherFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     async def async_step_user(self, user_input=None):
         """Allow user to decide between mobile API or public API."""
-        errors = {}
         if user_input is None:
             return await self._show_user_form(user_input)
 
@@ -226,6 +225,7 @@ class WeatherFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             }
         )
     def get_tide_location_url_from_label(self, label):
+        """Get the URL for the selected tide location."""
         for index, location_label in self.locations_map.items():
             if location_label == label:
                 # Assuming `self.locations` is the original list of dicts from which `locations_map` was made:

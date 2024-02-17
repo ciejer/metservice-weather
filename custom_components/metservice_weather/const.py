@@ -245,7 +245,6 @@ PRESSUREUNIT = 4
 RESULTS_CURRENT = "current"
 RESULTS_FORECAST_DAILY = "daily"
 RESULTS_FORECAST_HOURLY = "hourly"
-RESULTS_TIDES = "tides"
 
 ICON_THERMOMETER = "mdi:thermometer"
 ICON_WIND = "mdi:weather-windy"
