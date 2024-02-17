@@ -3,7 +3,8 @@
     "step": {
       "user": {
         "data": {
-          "api": "Choose from Mobile (uses GPS location) or Public (choose a city)."
+          "api": "Choose from Mobile (uses GPS location) or Public (choose a city).",
+          "enable_tides": "Enable tide information (You'll need to choose your marine forecast region)."
         },
         "data_description": {
           "api": "Mobile requires API key. See https://github.com/ciejer/metservice-weather/issues/12 for details"

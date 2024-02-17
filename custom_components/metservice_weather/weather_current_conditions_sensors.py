@@ -191,7 +191,6 @@ current_condition_sensor_descriptions_public = [
         icon="mdi:tshirt-crew",
         value_fn=lambda data, _: cast(str, data.replace("Afternoon: ", "")) if data else None,
     ),
-    # Tides not available in all cities, so leaving commented for now
     WeatherSensorEntityDescription(
         key="tides_high",
         name="Next High Tide",
@@ -378,11 +377,11 @@ current_condition_sensor_descriptions_mobile = [
         value_fn=lambda data, _: datetime.datetime.fromisoformat(
             [
                 a
-                for a in (data[0]["tides"] + data[1]["tides"])
+                for a in data
                 if a["type"] == "HIGH"
-                and datetime.datetime.fromisoformat(a["timeISO"])
+                and datetime.datetime.fromisoformat(a["time"])
                 > datetime.datetime.now(pytz.timezone("Pacific/Auckland"))
-            ][0]["timeISO"]
+            ][0]["time"]
         )
         if isinstance(data, list)
         else None,
@@ -395,11 +394,11 @@ current_condition_sensor_descriptions_mobile = [
         value_fn=lambda data, _: datetime.datetime.fromisoformat(
             [
                 a
-                for a in (data[0]["tides"] + data[1]["tides"])
+                for a in data
                 if a["type"] == "LOW"
-                and datetime.datetime.fromisoformat(a["timeISO"])
+                and datetime.datetime.fromisoformat(a["time"])
                 > datetime.datetime.now(pytz.timezone("Pacific/Auckland"))
-            ][0]["timeISO"]
+            ][0]["time"]
         )
         if isinstance(data, list)
         else None,

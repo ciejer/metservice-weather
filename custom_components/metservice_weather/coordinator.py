@@ -28,6 +28,7 @@ from .const import (
     SENSOR_MAP_PUBLIC,
     RESULTS_CURRENT,
     RESULTS_FORECAST_DAILY,
+    RESULTS_TIDES,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -49,6 +50,8 @@ class WeatherUpdateCoordinatorConfig:
     location_name: str
     latitude: str
     longitude: str
+    enable_tides: bool
+    tide_url: str
     update_interval = MIN_TIME_BETWEEN_UPDATES
 
 
@@ -68,6 +71,8 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         self._location_name = config.location_name
         self._latitude = config.latitude
         self._longitude = config.longitude
+        self._enable_tides = config.enable_tides
+        self._tide_url = config.tide_url
         self._unit_system_api = config.unit_system_api
         self.unit_system = config.unit_system
         self.data = None
@@ -104,6 +109,16 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         """Return the entity name prefix."""
         return self._api_type
 
+    @property
+    def enable_tides(self):
+        """Return the entity name prefix."""
+        return self._enable_tides
+
+    @property
+    def tide_url(self):
+        """Return the entity name prefix."""
+        return self._tide_url
+
     async def _async_update_data(self) -> dict[str, Any]:
         if self._api_type == "public":
             return await self.get_public_weather()
@@ -138,10 +153,19 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                     raise ValueError("NO CURRENT RESULT")
                 self._check_errors(url, result_daily)
             result_current['weather_warnings'] = warnings_text
-            result = {
-                RESULTS_CURRENT: result_current,
-                RESULTS_FORECAST_DAILY: result_daily,
-            }
+            result = {}
+            if self._enable_tides:
+                result_tides = await self.get_tides()
+                result_current['tideImport'] = result_tides
+                result = {
+                    RESULTS_CURRENT: result_current,
+                    RESULTS_FORECAST_DAILY: result_daily,
+                }
+            else:
+                result = {
+                    RESULTS_CURRENT: result_current,
+                    RESULTS_FORECAST_DAILY: result_daily,
+                }
             self.data = result
             return result
 
@@ -183,13 +207,47 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                     raise ValueError("NO CURRENT RESULT")
                 self._check_errors(url, result_daily)
             result_current['weather_warnings'] = warnings_text
-            result = {
-                RESULTS_CURRENT: result_current,
-                RESULTS_FORECAST_DAILY: result_daily,
-            }
+            result = {}
+            if self._enable_tides:
+                result_tides = await self.get_tides()
+                result_current['tideImport'] = result_tides
+                result = {
+                    RESULTS_CURRENT: result_current,
+                    RESULTS_FORECAST_DAILY: result_daily,
+                }
+            else:
+                result = {
+                    RESULTS_CURRENT: result_current,
+                    RESULTS_FORECAST_DAILY: result_daily,
+                }
             self.data = result
 
             return result
+
+        except ValueError as err:
+            _LOGGER.error("Check MetService API %s", err.args)
+        except (asyncio.TimeoutError, aiohttp.ClientError) as err:
+            _LOGGER.error("Error fetching MetService data: %s", repr(err))
+        _LOGGER.debug(f"MetService data {self.data}")
+
+    async def get_tides(self):
+        """Get tides data."""
+        headers = {
+            "Accept-Encoding": "gzip",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        }
+        try:
+            with async_timeout.timeout(10):
+                url = f"{self._tide_url}"
+                response = await self._session.get(url, headers=headers)
+                result_tides = await response.json(content_type=None)
+                if result_tides is None:
+                    raise ValueError("NO CURRENT RESULT")
+                self._check_errors(url, result_tides)
+
+            tide_data = result_tides["layout"]["primary"]["slots"]["main"]["modules"][0]["tideData"]
+
+            return tide_data
 
         except ValueError as err:
             _LOGGER.error("Check MetService API %s", err.args)

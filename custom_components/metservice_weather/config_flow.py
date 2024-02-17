@@ -23,6 +23,7 @@ from .const import (
 CONF_REGION = "tide_region"
 CONF_TIDE_REGION_URL = "tide_region_url"
 CONF_TIDE_URL = "tide_url"
+CONF_ENABLE_TIDES = "enable_tides"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,10 +35,12 @@ class WeatherFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     async def async_step_user(self, user_input=None):
         """Allow user to decide between mobile API or public API."""
+        errors = {}
         if user_input is None:
             return await self._show_user_form(user_input)
 
         self.user_info = user_input
+        self.user_info[CONF_ENABLE_TIDES] = user_input.get(CONF_ENABLE_TIDES, True)
 
         if user_input["api"] == "mobile":
             return await self.async_step_mobile()
@@ -51,8 +54,9 @@ class WeatherFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(
-                        CONF_API, default="mobile"
-                    ): SelectSelector(SelectSelectorConfig(options=["mobile", "public"])),
+                        CONF_API, default="public"
+                    ): SelectSelector(SelectSelectorConfig(options=["public", "mobile"])),
+                    vol.Optional(CONF_ENABLE_TIDES, default=True): bool,
                 }
             ),
             errors=errors or {},
@@ -104,6 +108,12 @@ class WeatherFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             self.user_info[CONF_LOCATION] = user_input[CONF_LOCATION]
             self.user_info[CONF_NAME] = location_name
             self.user_info[CONF_API] = "public"
+            if not self.user_info.get(CONF_ENABLE_TIDES, True):
+                # The user has opted out of tides functionality, skip to creating entry
+                return self.async_create_entry(
+                    title=self.user_info[CONF_NAME],
+                    data=self.user_info,
+                )
             return await self.async_step_tide_region()
 
     async def _show_public_form(self, errors=None):
@@ -173,6 +183,12 @@ class WeatherFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             self.user_info[CONF_API_KEY] = api_key
             self.user_info[CONF_NAME] = location_name
             self.user_info[CONF_API] = "mobile"
+            if not self.user_info.get(CONF_ENABLE_TIDES, True):
+                # The user has opted out of tides functionality, skip to creating entry
+                return self.async_create_entry(
+                    title=self.user_info[CONF_NAME],
+                    data=self.user_info,
+                )
             return await self.async_step_tide_region()
 
     async def _show_mobile_form(self, errors=None):
@@ -254,13 +270,40 @@ class WeatherFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             selected_label = user_input[CONF_TIDE_URL]
             tide_url = self.get_tide_location_url_from_label(selected_label)
             if tide_url:
+                session = async_create_clientsession(self.hass)
                 tide_url = f"https://www.metservice.com/publicData/webdata/{tide_url}"
                 self.user_info[CONF_TIDE_URL] = tide_url
+                try:
+                    with async_timeout.timeout(10):
+                        # Use English and US units for the initial test API call. User-supplied units and language will be used for
+                        # the created entities.
+                        headers = {
+                            "Accept-Encoding": "gzip",
+                            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+                        }
+                        response = await session.get(tide_url, headers=headers)
+                    # _LOGGER.debug(response.status)
+                    if response.status != HTTPStatus.OK:
+                        # 401 status is most likely bad api_key or api usage limit exceeded
+
+                        _LOGGER.error(
+                            "MetService config responded with HTTP error %s: %s",
+                            response.status,
+                            response.reason,
+                        )
+                        raise Exception
+                except Exception:  # pylint: disable=broad-except
+                    _LOGGER.exception("Unexpected exception")
+                    return self.async_show_form(
+                        step_id="tide_location",
+                        data_schema=self._async_generate_select_schema_location(self.locations, CONF_TIDE_URL),
+                    )
+
             else:
-            # Handle error case where URL is not found
+                # Handle error case where URL is not found
                 return self.async_show_form(
                     step_id="tide_location",
-                    data_schema=self._async_generate_select_schema_location(locations, CONF_TIDE_URL),
+                    data_schema=self._async_generate_select_schema_location(self.locations, CONF_TIDE_URL),
                 )
 
         # Now you can create the entry with all the necessary information
