@@ -146,6 +146,14 @@ class MetServiceForecastMobile(MetServiceMobile):
         """Return the name of the forecast sensor."""
         return f"{self.coordinator.location_name} Forecast"
 
+    @property
+    def extra_state_attributes(self) -> dict[str, object]:
+        """Return the state attributes."""
+        return {
+            'forecast_hourly': self.forecast_hourly,
+            'forecast_daily': self.forecast_daily
+        }
+
     async def async_forecast_hourly(self) -> list[Forecast] | None:
         """Return hourly forecast."""
         return self.forecast_hourly
@@ -310,6 +318,15 @@ class MetServiceForecastPublic(MetServicePublic):
     def name(self):
         """Return the name of the forecast sensor."""
         return f"{self.coordinator.location_name} Forecast"
+
+    @property
+    def extra_state_attributes(self) -> dict[str, object]:
+        """Return the state attributes."""
+        return {
+            'forecast_hourly': self.forecast_hourly,
+            'forecast_daily': self.forecast_daily
+        }
+
 
     async def async_forecast_hourly(self) -> list[Forecast] | None:
         """Return hourly forecast."""
