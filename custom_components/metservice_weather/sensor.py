@@ -121,7 +121,7 @@ class WeatherSensor(CoordinatorEntity, SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return the state attributes."""
-        return self.entity_description.attr_fn(self.coordinator.data)
+        return self.entity_description.attr_fn(self._sensor_data)
 
     @callback
     def _handle_coordinator_update(self) -> None:
