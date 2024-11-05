@@ -30,6 +30,7 @@ from homeassistant.components.weather import (
     ATTR_FORECAST_TEMP_LOW,
     ATTR_FORECAST_TIME,
     ATTR_FORECAST_WIND_SPEED,
+    ATTR_FORECAST_WIND_BEARING,
     ATTR_FORECAST_CONDITION,
     SingleCoordinatorWeatherEntity,
     WeatherEntityFeature,
@@ -185,6 +186,7 @@ class MetServiceForecastMobile(MetServiceMobile):
             icon = "sunny"
             rain_fall = safe_float(this_hour.get("rainFall"))
             wind_speed = safe_float(this_hour.get("windSpeed"))
+            wind_dir = this_hour.get("windDir")
 
             if rain_fall is not None and rain_fall > 0:
                 # rainy
@@ -214,6 +216,7 @@ class MetServiceForecastMobile(MetServiceMobile):
                         ),
                         ATTR_FORECAST_PRECIPITATION: rain_fall,
                         ATTR_FORECAST_WIND_SPEED: wind_speed,
+                        ATTR_FORECAST_WIND_BEARING: wind_dir,
                         ATTR_FORECAST_CONDITION: icon,
                     }
                 )
@@ -375,6 +378,7 @@ class MetServiceForecastPublic(MetServicePublic):
             icon = "sunny"
             rainfall = safe_float(this_hour.get("rainfall"))
             wind_speed = safe_float(this_hour["wind"].get("speed"))
+            wind_dir = this_hour["wind"].get("direction")
 
             if rainfall is not None and rainfall > 0:
                 # rainy
@@ -404,6 +408,7 @@ class MetServiceForecastPublic(MetServicePublic):
                         ),
                         ATTR_FORECAST_PRECIPITATION: rainfall,
                         ATTR_FORECAST_WIND_SPEED: wind_speed,
+                        ATTR_FORECAST_WIND_BEARING: wind_dir,
                         ATTR_FORECAST_CONDITION: icon,
                     }
                 )
