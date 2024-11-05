@@ -135,7 +135,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             "apiKey": self._api_key
         }
         try:
-            with async_timeout.timeout(10):
+            async with async_timeout.timeout(10):
                 url = f"{self._api_url}/{self._latitude}/{self._longitude}"
                 response = await self._session.get(url, headers=headers)
                 result_current = await response.json(content_type=None)
@@ -144,7 +144,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                     raise ValueError("NO CURRENT RESULT")
                 self._check_errors(url, result_current)
             warnings_text = '\n'.join([f"{warning['name']}, {warning['markdown']}" for warning in result_current['result']['warnings'].get('previews', [])]).replace('**', '').replace('#', '').replace('\n', ' ')
-            with async_timeout.timeout(10):
+            async with async_timeout.timeout(10):
                 url = f"{self._api_url}/locations/{self.location}/7-days"
                 response = await self._session.get(url, headers=headers)
                 result_daily = await response.json(content_type=None)
@@ -182,7 +182,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
         }
         try:
-            with async_timeout.timeout(10):
+            async with async_timeout.timeout(10):
                 url = f"{self._api_url}{self.location}"
                 response = await self._session.get(url, headers=headers)
                 result_current = await response.json(content_type=None)
@@ -190,7 +190,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 if result_current is None:
                     raise ValueError("NO CURRENT RESULT")
                 self._check_errors(url, result_current)
-            with async_timeout.timeout(10):
+            async with async_timeout.timeout(10):
                 url = f"{self._warnings_url}/{result_current['location']['type']}/{result_current['location']['key']}"
                 response = await self._session.get(url, headers=headers)
                 result_warnings = await response.json(content_type=None)
@@ -198,7 +198,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                     raise ValueError("NO WARNINGS RESULT")
                 self._check_errors(url, result_warnings)
                 warnings_text = '\n'.join([f"{warning['name']}, {warning['text']}, {warning['threatPeriod']}" for warning in result_warnings.get('warnings', [])])
-            with async_timeout.timeout(10):
+            async with async_timeout.timeout(10):
                 url = f"{self._api_url}{self.location}/7-days"
                 response = await self._session.get(url, headers=headers)
                 result_daily = await response.json(content_type=None)
@@ -236,7 +236,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
         }
         try:
-            with async_timeout.timeout(10):
+            async with async_timeout.timeout(10):
                 url = f"{self._tide_url}"
                 response = await self._session.get(url, headers=headers)
                 result_tides = await response.json(content_type=None)
