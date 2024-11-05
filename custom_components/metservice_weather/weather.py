@@ -30,6 +30,7 @@ from homeassistant.components.weather import (
     ATTR_FORECAST_TEMP_LOW,
     ATTR_FORECAST_TIME,
     ATTR_FORECAST_WIND_SPEED,
+    ATTR_FORECAST_WIND_BEARING,
     ATTR_FORECAST_CONDITION,
     SingleCoordinatorWeatherEntity,
     WeatherEntityFeature,
@@ -44,6 +45,13 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 _LOGGER = logging.getLogger(__name__)
 
 ENTITY_ID_FORMAT = WEATHER_DOMAIN + ".{}"
+
+def safe_float(value):
+    """Safely convert a value to float, return None if conversion fails."""
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return None
 
 
 async def async_setup_entry(
@@ -146,6 +154,14 @@ class MetServiceForecastMobile(MetServiceMobile):
         """Return the name of the forecast sensor."""
         return f"{self.coordinator.location_name} Forecast"
 
+    @property
+    def extra_state_attributes(self) -> dict[str, object]:
+        """Return the state attributes."""
+        return {
+            'forecast_hourly': self.forecast_hourly,
+            'forecast_daily': self.forecast_daily
+        }
+
     async def async_forecast_hourly(self) -> list[Forecast] | None:
         """Return hourly forecast."""
         return self.forecast_hourly
@@ -168,16 +184,20 @@ class MetServiceForecastMobile(MetServiceMobile):
             this_hour = hourly_readings[hour]
 
             icon = "sunny"
-            if float(this_hour["rainFall"]) > 0:
+            rain_fall = safe_float(this_hour.get("rainFall"))
+            wind_speed = safe_float(this_hour.get("windSpeed"))
+            wind_dir = this_hour.get("windDir")
+
+            if rain_fall is not None and rain_fall > 0:
                 # rainy
-                if float(this_hour["rainFall"]) > 6:
+                if rain_fall > 6:
                     # pouring
                     icon = "pouring"
                 else:
                     icon = "rainy"
             else:
                 # clear
-                if float(this_hour["windSpeed"]) > 40:
+                if wind_speed is not None and wind_speed > 40:
                     # windy
                     icon = "windy"
                 if 7 < datetime.fromisoformat(this_hour["dateISO"]).hour < 19:
@@ -190,12 +210,13 @@ class MetServiceForecastMobile(MetServiceMobile):
             forecast.append(
                 Forecast(
                     {
-                        ATTR_FORECAST_TEMP: this_hour["temperature"],
+                        ATTR_FORECAST_TEMP: safe_float(this_hour.get("temperature")),
                         ATTR_FORECAST_TIME: self.coordinator._format_timestamp(
                             this_hour["dateISO"]
                         ),
-                        ATTR_FORECAST_PRECIPITATION: this_hour["rainFall"],
-                        ATTR_FORECAST_WIND_SPEED: this_hour["windSpeed"],
+                        ATTR_FORECAST_PRECIPITATION: rain_fall,
+                        ATTR_FORECAST_WIND_SPEED: wind_speed,
+                        ATTR_FORECAST_WIND_BEARING: wind_dir,
                         ATTR_FORECAST_CONDITION: icon,
                     }
                 )
@@ -311,6 +332,15 @@ class MetServiceForecastPublic(MetServicePublic):
         """Return the name of the forecast sensor."""
         return f"{self.coordinator.location_name} Forecast"
 
+    @property
+    def extra_state_attributes(self) -> dict[str, object]:
+        """Return the state attributes."""
+        return {
+            'forecast_hourly': self.forecast_hourly,
+            'forecast_daily': self.forecast_daily
+        }
+
+
     async def async_forecast_hourly(self) -> list[Forecast] | None:
         """Return hourly forecast."""
         return self.forecast_hourly
@@ -346,16 +376,20 @@ class MetServiceForecastPublic(MetServicePublic):
             this_hour = hourly_readings[hour]
 
             icon = "sunny"
-            if float(this_hour["rainfall"]) > 0:
+            rainfall = safe_float(this_hour.get("rainfall"))
+            wind_speed = safe_float(this_hour["wind"].get("speed"))
+            wind_dir = this_hour["wind"].get("direction")
+
+            if rainfall is not None and rainfall > 0:
                 # rainy
-                if float(this_hour["rainfall"]) > 6:
+                if rainfall > 6:
                     # pouring
                     icon = "pouring"
                 else:
                     icon = "rainy"
             else:
                 # clear
-                if float(this_hour["wind"]["speed"]) > 40:
+                if wind_speed is not None and wind_speed > 40:
                     # windy
                     icon = "windy"
                 if 7 < datetime.fromisoformat(this_hour["date"]).hour < 19:
@@ -368,12 +402,13 @@ class MetServiceForecastPublic(MetServicePublic):
             forecast.append(
                 Forecast(
                     {
-                        ATTR_FORECAST_TEMP: this_hour["temperature"],
+                        ATTR_FORECAST_TEMP: safe_float(this_hour.get("temperature")),
                         ATTR_FORECAST_TIME: self.coordinator._format_timestamp(
                             this_hour["date"]
                         ),
-                        ATTR_FORECAST_PRECIPITATION: this_hour["rainfall"],
-                        ATTR_FORECAST_WIND_SPEED: this_hour["wind"]["speed"],
+                        ATTR_FORECAST_PRECIPITATION: rainfall,
+                        ATTR_FORECAST_WIND_SPEED: wind_speed,
+                        ATTR_FORECAST_WIND_BEARING: wind_dir,
                         ATTR_FORECAST_CONDITION: icon,
                     }
                 )

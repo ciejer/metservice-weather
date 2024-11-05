@@ -98,18 +98,16 @@ class WeatherSensor(CoordinatorEntity, SensorEntity):
             self._sensor_data = _get_sensor_data_public(
                 coordinator.data, description.key, self._unit_system
             )
-        self._attr_native_unit_of_measurement = (
-            self.entity_description.unit_fn(
-                self.coordinator.hass.config.units is METRIC_SYSTEM
-            )
-            if self._sensor_data is not None
-            else ""
+        self._attr_native_unit_of_measurement = self.entity_description.unit_fn(
+            self.coordinator.hass.config.units is METRIC_SYSTEM
         )
+
+        # _LOGGER.info(f"Initialized sensor '{self.name}' with data: {self._sensor_data}")
 
     @property
     def available(self) -> bool:
         """Return if weather data is available."""
-        return self.coordinator.data is not None
+        return self.coordinator.data is not None #and RESULTS_CURRENT in self.coordinator.data
 
     @property
     def name(self):
@@ -119,12 +117,32 @@ class WeatherSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self) -> StateType:
         """Return the state."""
-        return self.entity_description.value_fn(self._sensor_data, self._unit_system)
+        if not self._sensor_data:
+            _LOGGER.debug(f"Sensor '{self.name}' has no data.")
+            return None  # Return None instead of "Unknown"
+        try:
+            value = self.entity_description.value_fn(self._sensor_data, self._unit_system)
+            # _LOGGER.debug(f"Sensor '{self.name}' state: {value}")
+            return value
+        except Exception as e:
+            _LOGGER.error(f"Error processing state for sensor '{self.name}': {e}")
+            return None  # Return None instead of "Unknown"
+
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return the state attributes."""
-        return self.entity_description.attr_fn(self.coordinator.data)
+        if not self._sensor_data:
+            _LOGGER.debug(f"Sensor '{self.name}' has no attributes data.")
+            return {}
+        try:
+            attributes = self.entity_description.attr_fn(self._sensor_data)
+            # _LOGGER.info(f"Sensor '{self.name}' attributes: {attributes}")
+            return attributes
+        except Exception as e:
+            _LOGGER.error(f"Error processing attributes for sensor '{self.name}': {e}")
+            return {}
+
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -137,6 +155,7 @@ class WeatherSensor(CoordinatorEntity, SensorEntity):
             self._sensor_data = _get_sensor_data_public(
                 self.coordinator.data, self.entity_description.key, self._unit_system
             )
+        # _LOGGER.info(f"Updated sensor '{self.name}' with data: {self._sensor_data}")
         self.async_write_ha_state()
 
 

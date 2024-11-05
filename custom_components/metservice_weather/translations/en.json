@@ -20,7 +20,7 @@
       },
       "mobile": {
         "data": {
-          "api_key": "Mobile requires API key. ",
+          "api_key": "Mobile requires API key.",
           "name": "Name of the integration"
         },
         "data_description": {
