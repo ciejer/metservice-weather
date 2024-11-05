@@ -10,7 +10,7 @@ from typing import Any
 
 import aiohttp
 import async_timeout
-import pytz
+from homeassistant.util import dt as dt_util
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -340,5 +340,5 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
 
     @classmethod
     def _format_timestamp(cls, timestamp_val):
-        return datetime.fromisoformat(timestamp_val).astimezone(pytz.utc).isoformat()
+        return datetime.fromisoformat(timestamp_val).astimezone(dt_util.get_time_zone("UTC")).isoformat()
         # return datetime.utcfromtimestamp(timestamp_secs).isoformat("T") + "Z"
