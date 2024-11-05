@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, cast
+from typing import Any, cast
 from collections.abc import Callable
 import datetime
-from zoneinfo import ZoneInfo
 from homeassistant.util import dt as dt_util
 
 from .const import (
@@ -32,11 +31,11 @@ from homeassistant.const import (
     UnitOfSpeed,
 )
 from homeassistant.helpers.typing import StateType
-AUCKLAND_TIMEZONE = dt_util.get_time_zone("Pacific/Auckland")
 
 import logging
 _LOGGER = logging.getLogger(__name__)
 
+AUCKLAND_TIMEZONE = dt_util.get_time_zone("Pacific/Auckland")
 
 @dataclass
 class WeatherRequiredKeysMixin:
@@ -113,7 +112,7 @@ current_condition_sensor_descriptions_public = [
         device_class=SensorDeviceClass.HUMIDITY,
         state_class=SensorStateClass.MEASUREMENT,
         unit_fn=lambda _: PERCENTAGE,
-        value_fn=lambda data, _: cast(int, data) if isinstance(data, (int, float)) else 0,
+        value_fn=lambda data, _: cast(int, data) if isinstance(data, (int | float)) else 0,
     ),
     WeatherSensorEntityDescription(
         key="uvIndex",
@@ -136,7 +135,7 @@ current_condition_sensor_descriptions_public = [
         unit_fn=lambda metric: UnitOfTemperature.CELSIUS
         if metric
         else UnitOfTemperature.FAHRENHEIT,
-        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int, float)) else 0.0,
+        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int | float)) else 0.0,
     ),
     WeatherSensorEntityDescription(
         key=FIELD_TEMP,
@@ -147,7 +146,7 @@ current_condition_sensor_descriptions_public = [
         unit_fn=lambda metric: UnitOfTemperature.CELSIUS
         if metric
         else UnitOfTemperature.FAHRENHEIT,
-        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int, float)) else 0.0,
+        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int | float)) else 0.0,
     ),
     WeatherSensorEntityDescription(
         key=FIELD_PRESSURE,
@@ -156,7 +155,7 @@ current_condition_sensor_descriptions_public = [
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.PRESSURE,
         unit_fn=lambda metric: UnitOfPressure.MBAR if metric else UnitOfPressure.INHG,
-        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int, float)) else 0.0,
+        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int | float)) else 0.0,
     ),
     WeatherSensorEntityDescription(
         key=FIELD_WINDGUST,
@@ -167,7 +166,7 @@ current_condition_sensor_descriptions_public = [
         unit_fn=lambda metric: UnitOfSpeed.KILOMETERS_PER_HOUR
         if metric
         else UnitOfSpeed.MILES_PER_HOUR,
-        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int, float)) else 0.0,
+        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int | float)) else 0.0,
     ),
     WeatherSensorEntityDescription(
         key=FIELD_WINDSPEED,
@@ -178,7 +177,7 @@ current_condition_sensor_descriptions_public = [
         unit_fn=lambda metric: UnitOfSpeed.KILOMETERS_PER_HOUR
         if metric
         else UnitOfSpeed.MILES_PER_HOUR,
-        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int, float)) else 0.0,
+        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int | float)) else 0.0,
     ),
     WeatherSensorEntityDescription(
         key="pressureTendencyTrend",
@@ -297,7 +296,7 @@ current_condition_sensor_descriptions_mobile = [
         device_class=SensorDeviceClass.HUMIDITY,
         state_class=SensorStateClass.MEASUREMENT,
         unit_fn=lambda _: PERCENTAGE,
-        value_fn=lambda data, _: cast(int, data) if isinstance(data, (int, float)) else 0,
+        value_fn=lambda data, _: cast(int, data) if isinstance(data, (int | float)) else 0,
     ),
     WeatherSensorEntityDescription( # UV index from main endpoint is UV Alert from mobile endpoint
         key="uvAlert",
@@ -320,7 +319,7 @@ current_condition_sensor_descriptions_mobile = [
         unit_fn=lambda metric: UnitOfTemperature.CELSIUS
         if metric
         else UnitOfTemperature.FAHRENHEIT,
-        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int, float)) else 0.0,
+        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int | float)) else 0.0,
     ),
     WeatherSensorEntityDescription(
         key=FIELD_TEMP,
@@ -331,7 +330,7 @@ current_condition_sensor_descriptions_mobile = [
         unit_fn=lambda metric: UnitOfTemperature.CELSIUS
         if metric
         else UnitOfTemperature.FAHRENHEIT,
-        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int, float)) else 0.0,
+        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int | float)) else 0.0,
     ),
     WeatherSensorEntityDescription(
         key=FIELD_PRESSURE,
@@ -340,7 +339,7 @@ current_condition_sensor_descriptions_mobile = [
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.PRESSURE,
         unit_fn=lambda metric: UnitOfPressure.MBAR if metric else UnitOfPressure.INHG,
-        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int, float)) else 0.0,
+        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int | float)) else 0.0,
     ),
     WeatherSensorEntityDescription(
         key=FIELD_WINDGUST,
@@ -351,7 +350,7 @@ current_condition_sensor_descriptions_mobile = [
         unit_fn=lambda metric: UnitOfSpeed.KILOMETERS_PER_HOUR
         if metric
         else UnitOfSpeed.MILES_PER_HOUR,
-        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int, float)) else 0.0,
+        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int | float)) else 0.0,
     ),
     WeatherSensorEntityDescription(
         key=FIELD_WINDSPEED,
@@ -362,7 +361,7 @@ current_condition_sensor_descriptions_mobile = [
         unit_fn=lambda metric: UnitOfSpeed.KILOMETERS_PER_HOUR
         if metric
         else UnitOfSpeed.MILES_PER_HOUR,
-        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int, float)) else 0.0,
+        value_fn=lambda data, _: cast(float, data) if isinstance(data, (int | float)) else 0.0,
     ),
     WeatherSensorEntityDescription(
         key="pressureTendencyTrend",
