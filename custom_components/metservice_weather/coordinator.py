@@ -74,6 +74,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         self._enable_tides = config.enable_tides
         self._tide_url = config.tide_url
         self._unit_system_api = config.unit_system_api
+        self._base_url = 'https://www.metservice.com'
         self.unit_system = config.unit_system
         self.data = None
         self._session = async_get_clientsession(self._hass)
@@ -139,6 +140,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         try:
             async with async_timeout.timeout(10):
                 url = f"{self._api_url}/{self._latitude}/{self._longitude}"
+                _LOGGER.info(f"Fetching MetService data from {url}")
                 response = await self._session.get(url, headers=headers)
                 result_current = await response.json(content_type=None)
                 if result_current is None:
@@ -155,6 +157,8 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 if result_daily is None:
                     raise ValueError("No daily forecast data received.")
                 self._check_errors(url, result_daily)
+                await self.expand_data_urls(result_current)
+                await self.expand_data_urls(result_daily)
             result_current['weather_warnings'] = warnings_text
             result = {}
             if self._enable_tides:
@@ -194,11 +198,15 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         try:
             async with async_timeout.timeout(10):
                 url = f"{self._api_url}{self.location}"
+                _LOGGER.info(f"Fetching MetService data from {url}")
                 response = await self._session.get(url, headers=headers)
+                _LOGGER.info(f"Received MetService data from {url}: {response}")
                 result_current = await response.json(content_type=None)
+                _LOGGER.info(f"result_current is: {result_current}")
                 if result_current is None:
                     raise ValueError("No current weather data received.")
                 self._check_errors(url, result_current)
+            await self.expand_data_urls(result_current)
             async with async_timeout.timeout(10):
                 url = f"{self._warnings_url}/{result_current['location']['type']}/{result_current['location']['key']}"
                 response = await self._session.get(url, headers=headers)
@@ -206,6 +214,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 if result_warnings is None:
                     raise ValueError("No warnings data received.")
                 self._check_errors(url, result_warnings)
+                await self.expand_data_urls(result_warnings)
                 warnings_text = '\n'.join([
                     f"{warning['name']}, {warning['text']}, {warning['threatPeriod']}"
                     for warning in result_warnings.get('warnings', [])
@@ -220,6 +229,8 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             result_current['weather_warnings'] = warnings_text
             result = {}
             if self._enable_tides:
+                await self.expand_data_urls(result_current)
+                await self.expand_data_urls(result_daily)
                 result_tides = await self.get_tides()
                 result_current['tideImport'] = result_tides
                 result = {
@@ -256,12 +267,13 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         try:
             async with async_timeout.timeout(10):
                 url = f"{self._tide_url}"
+                _LOGGER.info(f"Fetching tides data from {url}")
                 response = await self._session.get(url, headers=headers)
                 result_tides = await response.json(content_type=None)
                 if result_tides is None:
                     raise ValueError("No tides data received.")
                 self._check_errors(url, result_tides)
-
+            await self.expand_data_urls(result_tides)
             tide_data = result_tides["layout"]["primary"]["slots"]["main"]["modules"][0]["tideData"]
 
             return tide_data
@@ -364,3 +376,44 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
     def _format_timestamp(cls, timestamp_val):
         """Format timestamp to ISO format in UTC."""
         return datetime.fromisoformat(timestamp_val).astimezone(dt_util.get_time_zone("UTC")).isoformat()
+
+
+    async def expand_data_urls(self, data, parent=None, key=None):
+        """Recursively expand dataUrl entries in the data, replacing the entire object."""
+        if isinstance(data, dict):
+            if 'dataUrl' in data:
+                url = data['dataUrl']
+                if url.startswith('/'):
+                    full_url = f"{self._base_url}{url}"
+                else:
+                    full_url = url
+                try:
+                    async with async_timeout.timeout(10):
+                        response = await self._session.get(full_url)
+                        if response.status != 200:
+                            _LOGGER.error(f"Error fetching {full_url}: HTTP {response.status}")
+                            if parent is not None and key is not None:
+                                parent[key] = None  # Handle as needed
+                            return
+                        result = await response.json(content_type=None)
+                    # Replace the entire object containing 'dataUrl' with the fetched data
+                    if parent is not None and key is not None:
+                        parent[key] = result
+                    # Continue processing in case there are nested dataUrls
+                    await self.expand_data_urls(result, parent=parent, key=key)
+                except Exception as e:
+                    _LOGGER.error(f"Error fetching dataUrl {full_url}: {e}")
+                    if parent is not None and key is not None:
+                        parent[key] = None  # Handle as needed
+            else:
+                # Recursively process the rest of the dictionary
+                for k in list(data.keys()):
+                    await self.expand_data_urls(data[k], parent=data, key=k)
+        elif isinstance(data, list):
+            # Recursively process each item in the list
+            for idx, item in enumerate(data):
+                await self.expand_data_urls(item, parent=data, key=idx)
+        else:
+            # Not a dict or list, do nothing
+            pass
+
