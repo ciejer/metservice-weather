@@ -226,6 +226,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 if result_daily is None:
                     raise ValueError("No daily forecast data received.")
                 self._check_errors(url, result_daily)
+                await self.expand_data_urls(result_daily)
             result_current['weather_warnings'] = warnings_text
             result = {}
             if self._enable_tides:
