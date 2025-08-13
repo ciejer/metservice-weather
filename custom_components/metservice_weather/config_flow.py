@@ -38,10 +38,12 @@ class WeatherFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is None:
             return await self._show_user_form(user_input)
 
-        self.user_info = user_input
-        self.user_info[CONF_ENABLE_TIDES] = user_input.get(CONF_ENABLE_TIDES, True)
+        self.user_info = {
+            CONF_API: user_input[CONF_API],
+            CONF_ENABLE_TIDES: user_input.get(CONF_ENABLE_TIDES, True),
+        }
 
-        if user_input["api"] == "mobile":
+        if user_input[CONF_API] == "mobile":
             return await self.async_step_mobile()
         else:
             return await self.async_step_public()
