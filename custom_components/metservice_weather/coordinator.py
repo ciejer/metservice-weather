@@ -200,9 +200,9 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 url = f"{self._api_url}{self.location}"
                 _LOGGER.info(f"Fetching MetService data from {url}")
                 response = await self._session.get(url, headers=headers)
-                _LOGGER.info(f"Received MetService data from {url}: {response}")
+                _LOGGER.debug(f"Received MetService data from {url}: {response}")
                 result_current = await response.json(content_type=None)
-                _LOGGER.info(f"result_current is: {result_current}")
+                _LOGGER.debug(f"result_current is: {result_current}")
                 if result_current is None:
                     raise ValueError("No current weather data received.")
                 self._check_errors(url, result_current)
