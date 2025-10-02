@@ -8,16 +8,17 @@ from . import WeatherUpdateCoordinator
 from homeassistant.config_entries import ConfigEntry
 from .const import (
     DOMAIN,
-    TEMPUNIT,
-    LENGTHUNIT,
-    SPEEDUNIT,
-    PRESSUREUNIT,
     FIELD_CONDITIONS,
     FIELD_HUMIDITY,
     FIELD_PRESSURE,
     FIELD_TEMP,
     FIELD_WINDDIR,
     FIELD_WINDSPEED,
+    LENGTHUNIT,
+    MANUFACTURER,
+    PRESSUREUNIT,
+    SPEEDUNIT,
+    TEMPUNIT,
     CONDITION_MAP,
 )
 
@@ -39,6 +40,7 @@ from homeassistant.components.weather import (
 )
 
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -75,6 +77,15 @@ async def async_setup_entry(
 
 class MetServiceMobile(SingleCoordinatorWeatherEntity):
     """Implementation of a MetService weather service."""
+
+    def __init__(self, coordinator: WeatherUpdateCoordinator) -> None:
+        """Set up MetService device info."""
+        super().__init__(coordinator)
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, coordinator.location)},
+            name=coordinator.location_name,
+            manufacturer=MANUFACTURER,
+        )
 
     @property
     def native_temperature(self) -> float:
@@ -252,6 +263,15 @@ class MetServiceForecastMobile(MetServiceMobile):
 
 class MetServicePublic(SingleCoordinatorWeatherEntity):
     """Implementation of a MetService weather service."""
+
+    def __init__(self, coordinator: WeatherUpdateCoordinator) -> None:
+        """Set up MetService device info."""
+        super().__init__(coordinator)
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, coordinator.location)},
+            name=coordinator.location_name,
+            manufacturer=MANUFACTURER,
+        )
 
     @property
     def native_temperature(self) -> float:

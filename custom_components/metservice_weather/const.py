@@ -9,6 +9,7 @@ from typing import Final
 
 DOMAIN = "metservice_weather"
 CONF_ATTRIBUTION = "Data provided by the MetService NZ weather service"
+MANUFACTURER = "MetService"
 
 FIELD_DESCRIPTION = "wxPhraseLong"
 FIELD_HUMIDITY = "relativeHumidity"
