@@ -6,6 +6,7 @@ import asyncio
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 import logging
+import re
 from typing import Any
 
 import aiohttp
@@ -193,7 +194,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         headers = {
             "Accept-Encoding": "gzip",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                          "(KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+            "(KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
         }
         try:
             async with async_timeout.timeout(10):
@@ -228,6 +229,9 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 self._check_errors(url, result_daily)
                 await self.expand_data_urls(result_daily)
             result_current['weather_warnings'] = warnings_text
+            pollen = await self.get_pollen_data(headers)
+            if pollen:
+                result_current["pollen"] = pollen
             result = {}
             if self._enable_tides:
                 await self.expand_data_urls(result_current)
@@ -263,7 +267,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         headers = {
             "Accept-Encoding": "gzip",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                          "(KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+            "(KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
         }
         try:
             async with async_timeout.timeout(10):
@@ -291,6 +295,23 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         # finally:
         #     _LOGGER.info(f"Tides data updated: {tide_data if 'tide_data' in locals() else 'No tides data'}")
 
+    async def get_pollen_data(self, headers) -> dict | None:
+        """Fetch and parse pollen (airborne allergens) data."""
+        try:
+            async with async_timeout.timeout(10):
+                url = f"{self._api_url}{self.location}/airborne-allergens"
+                response = await self._session.get(url, headers=headers)
+                pollen_raw = await response.json(content_type=None)
+                if pollen_raw is None:
+                    raise ValueError("No pollen data received.")
+                self._check_errors(url, pollen_raw)
+            await self.expand_data_urls(pollen_raw)
+            pollen_levels = self._parse_pollen_levels(pollen_raw)
+            return pollen_levels
+        except Exception as err:
+            _LOGGER.error("Error fetching pollen data: %s", err)
+            return None
+
     def _check_errors(self, url: str, response: dict):
         """Check for errors in the API response."""
         if "errors" not in response:
@@ -298,6 +319,55 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         if errors := response["errors"]:
             error_messages = "; ".join([e["message"] for e in errors])
             raise ValueError(f"Error from {url}: {error_messages}")
+
+    def _parse_pollen_levels(self, pollen_raw: dict) -> dict | None:
+        """Convert the airborne-allergens page content into a pollen payload."""
+        modules = (
+            pollen_raw.get("layout", {})
+            .get("primary", {})
+            .get("slots", {})
+            .get("main", {})
+            .get("modules", [])
+        )
+        entries: list[tuple[str, str | None]] = []
+        for module in modules:
+            content = module.get("content")
+            if not isinstance(content, list):
+                continue
+            for item in content:
+                html_block = item.get("html")
+                if not isinstance(html_block, str):
+                    continue
+                if "status-" not in html_block:
+                    continue
+                level, details = self._parse_pollen_block(html_block)
+                if level:
+                    entries.append((level, details))
+        if not entries:
+            return None
+
+        severity = {"high": 3, "moderate": 2, "imminent": 2, "low": 1}
+        best_level = max(entries, key=lambda e: severity.get(e[0].lower(), 0))[0]
+        detail_parts = [
+            f"{level}: {details}" if details else level for level, details in entries
+        ]
+        return {
+            "pollenLevels": {
+                "level": best_level,
+                "type": "; ".join(detail_parts),
+            }
+        }
+
+    def _parse_pollen_block(self, html_block: str) -> tuple[str | None, str | None]:
+        """Extract level and description from one pollen HTML snippet."""
+        html_block = re.sub(r"(?i)</?br\s*/?>", "\n", html_block)
+        html_block = re.sub(r"<[^>]+>", "", html_block)
+        lines = [line.strip() for line in html_block.splitlines() if line.strip()]
+        if not lines:
+            return None, None
+        level = lines[0]
+        details = " ".join(lines[1:]).strip() if len(lines) > 1 else None
+        return level, details or None
 
     def get_from_dict(self, data_dict, map_list):
         """Recursively look for a given key path within a dictionary."""
@@ -417,4 +487,3 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         else:
             # Not a dict or list, do nothing
             pass
-
