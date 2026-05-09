@@ -11,7 +11,6 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -86,16 +85,8 @@ class WeatherSensor(CoordinatorEntity, SensorEntity):
             name=coordinator.location_name,
             manufacturer=MANUFACTURER,
         )
-
-        entity_id_format = description.key + ".{}"
-
         self._attr_unique_id = (
             f"{self.coordinator.location_name},{description.key}".lower()
-        )
-        self.entity_id = generate_entity_id(
-            entity_id_format,
-            f"{self.coordinator.location_name}_{description.name}",
-            hass=coordinator.hass,
         )
         self._unit_system = coordinator.unit_system
         if self.coordinator.api_type == 'mobile':
