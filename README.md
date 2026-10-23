@@ -1,4 +1,17 @@
 # MetService New Zealand Weather integration for Home Assistant
+
+> [!IMPORTANT]
+> ### This project has moved!
+>
+> This integration is now actively maintained by [@nagelm](https://github.com/nagelm) at **[nagelm/metservice-weather](https://github.com/nagelm/metservice-weather)**.
+>
+> Matt has continued development with regular releases, bug fixes, compatibility updates and new features. Huge thanks to him for picking this up!
+>
+> We're working on transitioning the default HACS listing to the maintained repository. **For new installations, please use Matt's version.**
+>
+> **Existing users:** The transition won't automatically migrate your HACS installation. The maintained version requires Home Assistant 2026.8 or later, and some sensors have been changed or renamed. Please review the newer version and its release notes before migrating. Further migration guidance is being confirmed.
+
+## About
 View weather data from MetService (NZ), including daily & hourly forecasts, as well as:
 
 * Current condition
